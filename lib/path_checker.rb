@@ -13,7 +13,6 @@ module PathChecker
   end
 
   def clear_vertical_path?(board, start_idx, end_idx)
-    #only works in one direction !
     start_idx, end_idx = order_vert(start_idx, end_idx)
 
     y1, x1 = start_idx
