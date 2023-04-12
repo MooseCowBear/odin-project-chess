@@ -1,6 +1,4 @@
 require_relative '../lib/queen.rb'
-require_relative '../lib/euclid.rb'
-require_relative '../lib/path_checker.rb'
 
 describe Queen do
   describe '#valid_move?' do
