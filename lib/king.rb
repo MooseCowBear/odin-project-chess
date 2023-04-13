@@ -30,4 +30,17 @@ class King
     dist = distance(x1, y1, x2, y2)
     return false unless distances.include?(dist)
   end
+
+  def get_adjacent_positions(position)
+    adjacent = []
+    y, x = position
+    (y - 1).upto(y + 1) do |i|
+      (x - 1).upto(x + 1) do |j|
+        if [i, j] != position
+          adjacent << [i, j] if i.between?(0, 7) && j.between?(0, 7)
+        end
+      end
+    end
+    adjacent
+  end
 end
