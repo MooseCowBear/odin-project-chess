@@ -1,21 +1,20 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
-require_relative './board_boundry.rb'
 
 class Knight
   include Euclid
   include PathChecker
-  include BoardBoundry
 
   attr_reader :slopes, :distances
   
-  def initialize
+  def initialize(color = "white")
     @slopes = Set.new([2.0, 0.5])
     @distances = Set.new([Math.sqrt(5)])
+    @color = color
   end
 
   def valid_move?(board, start_idx, end_idx)
-    correct_slope?(board, start_idx, end_idx) && correct_distance?(board, start_idx, end_idx) && on_board?(board,end_idx)
+    correct_slope?(board, start_idx, end_idx) && correct_distance?(board, start_idx, end_idx)
   end
 
   private 
