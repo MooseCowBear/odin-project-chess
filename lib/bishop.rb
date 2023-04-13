@@ -5,11 +5,24 @@ class Bishop
   include Euclid
   include PathChecker
 
-  attr_reader :slopes, :color
+  attr_reader :slopes, :color, :num
 
-  def initialize(color = "white")
+  def initialize(num = 1, color = "white")
     @slopes = Set.new([1.0])
     @color = color
+    @num = num
+  end
+
+  def to_s 
+    color == "white" ? "\u{2657}" : "\u{265D}"
+  end
+
+  def get_start_position
+    if num == 1
+      color == "black" ? [0, 2] : [7, 2]
+    else
+      color == "black" ? [0, 5] : [7, 5]
+    end
   end
 
   def valid_move?(board, start_idx, end_idx)
