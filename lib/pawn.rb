@@ -65,7 +65,7 @@ class Pawn
   end
 
   def taking?(board, end_idx)
-    return false if board[end_idx[0]][end_idx[1]].nil?
+    return false if board[end_idx[0]][end_idx[1]].nil? || board[end_idx[0]][end_idx[1]].color == self.color
     true
   end
 
