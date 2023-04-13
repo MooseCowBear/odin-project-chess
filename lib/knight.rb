@@ -8,7 +8,7 @@ class Knight
   attr_reader :slopes, :distances, :color, :num
   
   def initialize(num = 1, color = "white")
-    @slopes = Set.new([2.0, 0.5])
+    @slopes = Set.new([2.0, -2.0, 0.5, -0.5])
     @distances = Set.new([Math.sqrt(5)])
     @color = color
     @num = num
@@ -33,8 +33,7 @@ class Knight
   private 
   def correct_slope?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return false if slope.nil?
-    return false unless slopes.include?(slope.abs)
+    return false unless slopes.include?(slope)
     true
   end
 
