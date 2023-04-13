@@ -9,6 +9,7 @@ class Pawn
   attr_accessor :moved
 
   def initialize(num = 1, color = "white")
+    @slopes = Set.new([nil]) #using for intercepting moves
     @moved = false
     @color = color
     @num = num
@@ -44,7 +45,14 @@ class Pawn
     #can be kitty corner when taking opponent piece (if there is one to take)
     #or if en passant - gets checked in the game itself
     taking_opponent_piece = taking?(board, end_idx)
-    correct_distance?(start_idx, end_idx, taking_opponent_piece) && correct_direction?(start_idx, end_idx)
+    if taking_opponent_piece
+      (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
+      correct_direction?(start_idx, end_idx))
+    else
+      (correct_distance(start_idx, end_idx, taking_opponent_piece) && 
+      correct_direction?(start_idx, end_idx) && 
+      clear_vertical_path?(board, start_idx, end_idx, true))
+    end
   end
 
   private
