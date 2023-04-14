@@ -171,13 +171,25 @@ class Chess
     board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
   end
 
-  def move_legal?(move_start, move_end, player_check, check_moves, non_check_moves, available_castles)
+  def move_legal?(move_start, move_end, player_check, king_moves, check_moves, non_check_moves, available_castles)
     if player_check
       return true check_moves[move_start].include?(move_end)
     else
       return true if available_castles[move_start] == move_end 
-      return true if non_check_moves.include?(move_start) && board[move_start[0]][move_start[1]].valid_move?(board, move_start, move_end)
+      return true if non_check_moves.include?(move_start) && board[move_start[0]][move_start[1]].valid_move?(board, move_start, move_end) 
+      return true if king_moves[move_start].include?(move_end)
+      return true if en_passant[move_start].include?(move_end)
     end
+    false
+  end
+
+  def checkmate?(player_check, check_moves)
+    return true if check_moves.empty? && player_check
+    false
+  end
+
+  def stalemate?(king_moves, non_check_moves, available_castles)
+    return true if king_moves.empty? && non_check_moves.empty? && available_castles.empty? #do you want to include some checks for dead positions, bare kings?
     false
   end
 
@@ -196,6 +208,7 @@ class Chess
     pieces_that_can_move
   end
 
+  #helper functions for pieces that can move
   def get_test_board(m, n)
     board[m, n] = nil
   end
@@ -240,20 +253,19 @@ class Chess
     return true
   end
 
-
-  def moves_from_check(king_color, king_position, pieces_that_check) 
+  def moves_from_check(king_color, king_position, king_moves, pieces_that_check) #king moves are also non check moves, so get them elsewhere and pass
     #these are:
     # 1. moves the king can make without moving to another checked square
     # 2. moves other pieces can make to capture the checking opponent piece
     # 3. moves other pieces can make to get between the king and the checking piece (if checking piece is not a knight)
 
     if pieces_that_check.length > 1 #more than one opponent piece responsible for check? we can only move the king
-      get_king_moves(king_color, king_position)
+      king_moves
     else
-      king_moves = get_king_moves(king_color, king_position)
       opponent_position = pieces_that_check[0]
       opponent_color = king_color == "white" ? "black" : "white"
       other_moves = moves_that_take_opponent(opponent_color, opponent_position)
+
       all_viable_moves = king_moves.merge(other_moves)
 
       unless board[opponent_position[0]][opponent_position[1]].is_a?(Knight)
@@ -281,15 +293,6 @@ class Chess
       end
     end
     pieces_that_check 
-  end
-
-  def check?(pieces_that_check)
-    return false if pieces_that_check.empty?
-    true
-  end
-
-  def checkmate?(possible_moves)
-    possible_moves.empty? 
   end
 
   private 
