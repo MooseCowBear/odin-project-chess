@@ -23,19 +23,18 @@ class Chess
     @black_king_position = [0, 4] 
 
     @num_moves = 0
-    @en_passant = Hash.new #hash start => [end] if option (up to size 2) - Why is value in an array? because will potentially merge this hash with others of that form
+    @en_passant = Hash.new #hash start => [end] if option (up to 2 keys) - Why is value in an array? because will potentially merge this hash with others of that form
     @check_white = false
     @check_black = false
 
     @winner = nil
-    @history = get_history
   end
 
   def play
   end
 
   def get_starting_board
-    Array.new(8) { Array.new(8) } #later, update to read in board from file
+    self.board = Array.new(8) { Array.new(8) } #later, update to read in board from file
 
     players = ["white", "black"]
     players.each do |player| 
@@ -69,29 +68,31 @@ class Chess
     end 
   end
 
-  def get_history #later update to read from file
-    Hash.new
-  end
-
   def display_turns
-    take_turn until !winner.nil? || num_moves >= 75
+    take_turn until !winner.nil? || num_moves >= 75 #or 3 repeated board states?
   end
 
   def take_turn
 
     #start turn by checking for check. 
 
-    #get appropriate moves and store
+    #get appropriate moves and store (this is castling, moves from check(if in check else leave it empty), king_moves, non check moves - already have enpassant)
 
-    #announce checkmate or stalemate if applicable
+    #(now that have moves) announce checkmate or stalemate if applicable
+
+    #if checkmate, record winner (winner is NOT curr player)
 
     #then get move and validate
 
     #make move (updating board)
 
-    #add en passant??
+    #update en passant (needs to be before updating turn)
+
+    #PAWN PROMOTION?
 
     #update whose move it is
+
+    #increment num moves
 
     #ask to save (eventually)
 
@@ -105,7 +106,6 @@ class Chess
     #convert_move if on board, else ask for a move that is on the board. or of the right format
 
     #is the move legal?, if yes, accept. else ask for a legal move
-
 
   end
 
@@ -123,14 +123,14 @@ class Chess
     #need to convert inputs like a4b2 to pairs of matrix indices
     #letter is column, number is row
     move = move.downcase 
-    start_col = 97 - move[0].ord
+    start_col = move[0].ord - 97
     start_row = 8 - move[1].to_i
-    end_col = 97 - move[2].ord
+    end_col = move[2].ord - 97
     end_row = 8 - move[3].to_i
     return [[start_row, start_col], [end_row, end_col]]
   end
 
-  def on_board?(move) 
+  def on_board?(move) #could be big or
     return false unless move.length == 4
     return false unless move.downcase[0].between?('a', 'h') && move[2].downcase.between?('a', 'h')
     return false unless move[1].to_i.between?(1, 8) && move[3].to_i.between?(1, 8)
@@ -149,7 +149,7 @@ class Chess
 
     left = left_neighbor(end_pt)
     right = right_neighbor(end_pt)
-    ep_position = turn_white : [end_pt[0] - 1, end_pt[1]] : [end_pt[0 + 1], end_pt[1]] #don't have to check if this square is empty bc pawn wouldn't have been able to move 2 squares if it wasn't
+    ep_position = turn_white ? [end_pt[0] - 1, end_pt[1]] : [end_pt[0 + 1], end_pt[1]] #don't have to check if this square is empty bc pawn wouldn't have been able to move 2 squares if it wasn't
 
     en_passant[left] = [ep_position] unless left.nil? 
     en_passant[right] = [ep_position] unless right.nil?
@@ -167,20 +167,20 @@ class Chess
   end
 
   def opponent_pawn?(m, n)
-    opponent_color = turn_white : "black" : "white"
+    opponent_color = turn_white ? "black" : "white"
     board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
   end
 
   def move_legal?(move_start, move_end, player_check, king_moves, check_moves, non_check_moves, available_castles)
     if player_check
-      return true check_moves[move_start].include?(move_end)
-    else
+      return check_moves[move_start].include?(move_end)
+    else #this can be a big or statement!!!
       return true if available_castles[move_start] == move_end 
       return true if non_check_moves.include?(move_start) && board[move_start[0]][move_start[1]].valid_move?(board, move_start, move_end) 
       return true if king_moves[move_start].include?(move_end)
       return true if en_passant[move_start].include?(move_end)
+      false
     end
-    false
   end
 
   def checkmate?(player_check, check_moves)
@@ -223,7 +223,7 @@ class Chess
     (piece.valid_move?(board, [m, n], [row, n]) || 
     piece.valid_move(board, [m, n], [row, n + 1]) || 
     piece.valid_move(board, [m, n], [row, n - 1]) || 
-    (!en_passant.nil? && en_passant.has_key?([m, n])))
+    en_passant.has_key?([m, n]))
   end
 
   def available_castles(king_position, king_color)
@@ -248,7 +248,7 @@ class Chess
 
     min.upto(max) do |col|
       checked = checked_by(king_color, [king_position[0], col])
-      return false unless checked.empty?
+      return false unless checked.empty? && board[king_position[0]][col].nil? 
     end
     return true
   end
@@ -295,7 +295,7 @@ class Chess
     pieces_that_check 
   end
 
-  private 
+  #private 
 
   def get_king_moves(king_color, king_position)
     moves = get_adjacent_positions(king_position)
@@ -337,7 +337,7 @@ class Chess
   end
 
   def en_passant_rescue?(player_color, opponent_position)
-    position = player_color == "white" : [opponent_position[0] - 1, opponent_position[1]] : [opponent_position[0 + 1], opponent_position[1]]
+    position = player_color == "white" ? [opponent_position[0] - 1, opponent_position[1]] : [opponent_position[0 + 1], opponent_position[1]]
     return false unless en_passant.has_value?(position) #row +/-1 depending on color!
     return true
   end
