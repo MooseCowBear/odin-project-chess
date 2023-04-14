@@ -66,6 +66,7 @@ class Chess
         self.board[m][n] = pawn
       end
     end 
+    board
   end
 
   def display_turns
@@ -138,7 +139,7 @@ class Chess
   end
 
   def print_board
-    pp board #change later
+    pp board #change later - does not print symbols
   end
 
   def update_en_passant(piece, start_pt, end_pt)
@@ -289,7 +290,7 @@ class Chess
       row.each_with_index do |piece, n|
         next if piece.nil? || piece.color == king_color
         checks_king = piece.valid_move?(board, [m, n], king_position)
-        pieces_that_check << [m, n]
+        pieces_that_check << [m, n] if checks_king
       end
     end
     pieces_that_check 
