@@ -41,15 +41,13 @@ class Pawn
   end
 
   def valid_move?(board, start_idx, end_idx)
-    #moves are 1. generally vertical (direction depends on color)
-    #can be kitty corner when taking opponent piece (if there is one to take)
-    #or if en passant - gets checked in the game itself
-    taking_opponent_piece = taking?(board, end_idx)
+    #note: en passant move is checked in chess class
+    taking_opponent_piece = capturing?(board, end_idx)
     if taking_opponent_piece
       (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
       correct_direction?(start_idx, end_idx))
     else
-      (correct_distance(start_idx, end_idx, taking_opponent_piece) && 
+      (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
       correct_direction?(start_idx, end_idx) && 
       clear_vertical_path?(board, start_idx, end_idx, true))
     end
@@ -57,14 +55,15 @@ class Pawn
 
   private
 
-  def correct_distance?(start_idx, end_idx, taking)
+  def correct_distance?(start_idx, end_idx, capture)
     dist = distance(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return false unless !taking && (dist == 1.0 || (dist == 2.0 && !moved))
-    return false unless taking && dist == Math.sqrt(2)
-    true
+    return true if !capture && (dist == 1.0 || (dist == 2.0 && !moved))
+    return true if capture && dist == Math.sqrt(2)
+    false
   end
 
-  def taking?(board, end_idx)
+  def capturing?(board, end_idx)
+    #just checking if they are attempting to capture. capturing on the diagonal gets tested in correct distance
     return false if board[end_idx[0]][end_idx[1]].nil? || board[end_idx[0]][end_idx[1]].color == self.color
     true
   end
