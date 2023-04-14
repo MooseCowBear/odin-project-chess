@@ -1,6 +1,8 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
 
+require 'set'
+
 class King
   include Euclid
   include PathChecker
@@ -18,7 +20,7 @@ class King
     color == "white" ? "\u{2654}" : "\u{265A}"
   end
 
-  def get_start_position(color)
+  def get_start_position
     color == "black" ? [0, 4] : [7, 4]
   end
 
