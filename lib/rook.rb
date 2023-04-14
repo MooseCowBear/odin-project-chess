@@ -8,12 +8,13 @@ class Rook
   include PathChecker
 
   attr_reader :slopes, :color, :num
+  attr_accessor :moved
   
   def initialize(num = 1, color = "white")
     @slopes = Set.new([0.0, nil])
-    @can_castle = true
     @color = color
     @num = num
+    @moved = false
   end
 
   def to_s 
