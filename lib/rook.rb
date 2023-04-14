@@ -1,6 +1,8 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
 
+require 'set'
+
 class Rook
   include Euclid
   include PathChecker
