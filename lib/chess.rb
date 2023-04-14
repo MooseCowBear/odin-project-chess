@@ -23,7 +23,7 @@ class Chess
     @black_king_position = [0, 4] 
 
     @num_moves = 0
-    @en_passant = nil #[start, end] if option
+    @en_passant = Hash.new #hash start => [end] if option (up to size 2) - Why is value in an array? because will potentially merge this hash with others of that form
     @check_white = false
     @check_black = false
 
@@ -89,18 +89,40 @@ class Chess
 
     #make move (updating board)
 
+    #add en passant??
+
     #update whose move it is
+
+    #ask to save (eventually)
 
   end
 
-  def get_move
+  def get_move() #needs to take in all the available moves, for check, for not check
+    #ask for player move
 
+    #on_board?
+
+    #convert_move if on board, else ask for a move that is on the board. or of the right format
+
+    #is the move legal?, if yes, accept. else ask for a legal move
+
+
+  end
+
+  def make_move(start_pt, end_pt)
+    #was it a pawn? update en passant
+
+    #was it a king? update king position
+
+    #update the board
+
+    #update history (eventually)
   end
 
   def convert_move(move)
     #need to convert inputs like a4b2 to pairs of matrix indices
-    move = move.downcase 
     #letter is column, number is row
+    move = move.downcase 
     start_col = 97 - move[0].ord
     start_row = 8 - move[1].to_i
     end_col = 97 - move[2].ord
@@ -108,7 +130,7 @@ class Chess
     return [[start_row, start_col], [end_row, end_col]]
   end
 
-  def on_board?(move) #this means we don't need to check if on board elsewhere!!
+  def on_board?(move) 
     return false unless move.length == 4
     return false unless move.downcase[0].between?('a', 'h') && move[2].downcase.between?('a', 'h')
     return false unless move[1].to_i.between?(1, 8) && move[3].to_i.between?(1, 8)
@@ -119,9 +141,34 @@ class Chess
     pp board #change later
   end
 
- 
-  def make_move(start_pt, end_pt)
-    
+  def update_en_passant(piece, start_pt, end_pt)
+    en_passant.clear
+
+    return unless piece.is_a?(Pawn)
+    return unless distance(start_pt[1], start_pt[0], end_pt[1], end_pt[0]) == 2.0 
+
+    left = left_neighbor(end_pt)
+    right = right_neighbor(end_pt)
+    ep_position = turn_white : [end_pt[0] - 1, end_pt[1]] : [end_pt[0 + 1], end_pt[1]] #don't have to check if this square is empty bc pawn wouldn't have been able to move 2 squares if it wasn't
+
+    en_passant[left] = [ep_position] unless left.nil? 
+    en_passant[right] = [ep_position] unless right.nil?
+  end
+
+  #helper functions for update_en_passant
+  def right_neighbor(end_pt)
+    return nil if end_pt[1] + 1 > 7
+    return [end_pt[0], end_pt[1] + 1] if opponent_pawn?(end_pt[0], end_pt[1] + 1)
+  end
+
+  def left_neighbor(end_pt)
+    return nil if end_pt[1] - 1 < 0
+    return [end_pt[0], end_pt[1] - 1] if opponent_pawn?(end_pt[0], end_pt[1] - 1)
+  end
+
+  def opponent_pawn?(m, n)
+    opponent_color = turn_white : "black" : "white"
+    board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
   end
 
   def move_legal?(move_start, move_end, player_check, check_moves, non_check_moves, available_castles)
@@ -163,7 +210,7 @@ class Chess
     (piece.valid_move?(board, [m, n], [row, n]) || 
     piece.valid_move(board, [m, n], [row, n + 1]) || 
     piece.valid_move(board, [m, n], [row, n - 1]) || 
-    (!en_passant.nil? && en_passant[0] == [m, n]))
+    (!en_passant.nil? && en_passant.has_key?([m, n])))
   end
 
   def available_castles(king_position, king_color)
@@ -216,7 +263,7 @@ class Chess
       
       #one last possibility: would an en passant move save us?
       unless en_passant.nil?
-        all_viable_moves[en_passant[0]] << en_passant[1] if en_passant_rescue?(opponent_position)
+        all_viable_moves.merge(en_passant) if en_passant_rescue?(opponent_position) 
       end
       all_viable_moves
     end
@@ -286,10 +333,10 @@ class Chess
     end
   end
 
-  def en_passant_rescue?(opponent_position)
-    start_pt, end_pt = en_passant
-    return true if [start_pt[0], end_pt[1]] == opponent_position
-    return false
+  def en_passant_rescue?(player_color, opponent_position)
+    position = player_color == "white" : [opponent_position[0] - 1, opponent_position[1]] : [opponent_position[0 + 1], opponent_position[1]]
+    return false unless en_passant.has_value?(position) #row +/-1 depending on color!
+    return true
   end
 
   def intercept_occurs_in_range?(slope1, slope2, intersection_pt, king_position, opponent_position)
