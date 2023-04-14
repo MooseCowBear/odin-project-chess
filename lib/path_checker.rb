@@ -29,7 +29,7 @@ module PathChecker
     end
 
     if pawn
-      return false unless board[y2][x1].nil? #if dealing with a pawn, need to make sure the space moving into isn't blocked
+      return false unless board[end_idx[0]][end_idx[1]].nil? #if dealing with a pawn, need to make sure the space moving into isn't blocked 
     end
     true
   end
