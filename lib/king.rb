@@ -5,15 +5,13 @@ class King
   include Euclid
   include PathChecker
 
-  attr_reader :distances
-  attr_accessor :moved, :position
+  attr_reader :distances, :color
+  attr_accessor :moved
 
   def initialize(color = "white")
-    @distances = Set.new([1, Math.sqrt(2)])
+    @distances = Set.new([1.0, Math.sqrt(2)])
     @moved = false
     @color = color
-    @can_castle = true
-    @position = get_start_position(color) #is this ok?
   end
 
   def to_s 
@@ -24,11 +22,12 @@ class King
     color == "black" ? [0, 4] : [7, 4]
   end
 
-  def valid_move?(board, start_idx, end_idx)
+  def valid_move?(board, start_idx, end_idx) #do we even need this for the king?
     y1, x1 = start_idx
     y2, x2 = end_idx
     dist = distance(x1, y1, x2, y2)
     return false unless distances.include?(dist)
+    true
   end
 
   def get_adjacent_positions(position)
