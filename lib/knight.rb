@@ -33,6 +33,7 @@ class Knight
   end
 
   private 
+  
   def correct_slope?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
     return false unless slopes.include?(slope)
