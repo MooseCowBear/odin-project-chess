@@ -24,7 +24,7 @@ class King
     color == "black" ? [0, 4] : [7, 4]
   end
 
-  def valid_move?(board, start_idx, end_idx) #do we even need this for the king?
+  def valid_move?(board, start_idx, end_idx)
     y1, x1 = start_idx
     y2, x2 = end_idx
     dist = distance(x1, y1, x2, y2)
