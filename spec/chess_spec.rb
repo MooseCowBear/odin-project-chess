@@ -110,4 +110,29 @@ describe Chess do
       end
     end
   end
+
+  describe '#empty_squares?' do
+    
+  end
+
+  describe '#available_castles' do
+    let(:test_king) { double(color: "black", moved: false) }
+    let(:rook_unmoved) { double(color: "black", moved :false) }
+    let(:rook_moved) { double(color: "black", moved: false) }
+    let(:opp_queen) { double(color: "white") }
+
+    let(:castling_board) {
+      [
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil]
+      ]
+    }
+
+  end
 end
