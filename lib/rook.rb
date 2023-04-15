@@ -31,11 +31,9 @@ class Rook
 
   def valid_move?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return false unless slopes.include?(slope)
-
     path_clear = slope.nil? ? clear_vertical_path?(board, start_idx, end_idx) : clear_non_vertical_path?(board, start_idx, end_idx, slope)
-    return false unless path_clear
 
+    return false unless slopes.include?(slope) && path_clear 
     true
   end
 end
