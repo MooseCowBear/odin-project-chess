@@ -1,5 +1,5 @@
 module Euclid
-  def slope(x1, y1, x2, y2) #assume board is oriented normal coordinate way, x is col, y is row
+  def slope(x1, y1, x2, y2) 
     return nil if (x2.to_f - x1.to_f) == 0
     return (y2.to_f - y1.to_f) / (x2.to_f - x1.to_f)
   end
@@ -10,7 +10,7 @@ module Euclid
 
   #methods to find point of intersection between two lines
   def intersection(x1, y1, slope1, x2, y2, slope2)
-    #if no intersection, will return nil. else returns point of intersection as [y, x] bc we want it in that form
+    #returns point of intersection as [y, x]
     return nil if slope1 == slope2
     if slope1.nil? 
       return find_intersection_vertical(x2, y2, slope2, x1)
