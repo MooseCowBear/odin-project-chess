@@ -11,14 +11,14 @@ class Pawn
   attr_accessor :moved
 
   def initialize(num = 1, color = "white")
-    @slopes = Set.new([nil]) #using for intercepting moves
+    @slopes = Set.new([nil]) 
     @moved = false
     @color = color
     @num = num
   end
 
   def to_s 
-    color == "white" ? "u\{2659}" : "u\{265F}"
+    color == "white" ? "\u{2659}" : "\u{265F}"
   end
 
   def get_start_position
