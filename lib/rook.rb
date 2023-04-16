@@ -1,11 +1,13 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
+require_relative './board_check.rb'
 
 require 'set'
 
 class Rook
   include Euclid
   include PathChecker
+  include BoardCheck
 
   attr_reader :slopes, :color, :num
   attr_accessor :moved
@@ -29,9 +31,25 @@ class Rook
     end
   end
 
+  def moves(board, start_idx)
+    moves = { start_idx => [] }
+    offsets = [ [0, 1], [0, -1], [1, 0], [-1, 0] ]
+    offsets.each do |o|
+      m = start_idx[0] + o[0]
+      n = start_idx[1] + o[1]
+      while on_board?([m, n])
+        if valid_move?(color, board, start_idx, [m, n])
+          moves[start_idx] << [m, n] 
+        else 
+          break
+      end
+    end
+    moves
+  end
+
   def valid_move?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    path_clear = slope.nil? ? clear_vertical_path?(board, start_idx, end_idx) : clear_non_vertical_path?(board, start_idx, end_idx, slope)
+    path_clear = slope.nil? ? clear_vertical_path?(color, board, start_idx, end_idx) : clear_non_vertical_path?(color, board, start_idx, end_idx, slope)
 
     return false unless slopes.include?(slope) && path_clear 
     true
