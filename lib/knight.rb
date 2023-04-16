@@ -1,11 +1,13 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
+require_relative './board_check.rb'
 
 require 'set'
 
 class Knight
   include Euclid
   include PathChecker
+  include BoardCheck
 
   attr_reader :slopes, :distances, :color, :num
   
@@ -28,12 +30,23 @@ class Knight
     end
   end
 
+  def moves(board, start_idx)
+    moves = { start_idx => [] }
+    offsets = [ [1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, -1] ]
+    offsets.each do |o|
+      m = start_idx[0] + o[0]
+      n = start_idx[1] + o[1]
+      moves[start_idx] << [m, n] if on_board?([m, n])
+    end
+    moves
+  end
+
   def valid_move?(board, start_idx, end_idx)
     correct_slope?(board, start_idx, end_idx) && correct_distance?(start_idx, end_idx)
   end
 
   private 
-  
+
   def correct_slope?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
     return false unless slopes.include?(slope)
