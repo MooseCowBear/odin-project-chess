@@ -1,11 +1,13 @@
 require_relative './euclid.rb'
 require_relative './path_checker.rb'
+require_relative './board_check.rb'
 
 require 'set'
 
 class Pawn
   include Euclid
   include PathChecker
+  include BoardCheck
 
   attr_reader :color, :num
   attr_accessor :moved
@@ -42,8 +44,20 @@ class Pawn
     end
   end
 
+  def moves(board, start_idx)
+    moves = { start_idx => [] }
+    dir = color == white ? -1 : 1
+    offsets = [ [dir, 0], [dir * 2, 0], [dir, 1], [dir, -1] ]
+    offsets.each do |o|
+      m = start_idx[0] + o[0]
+      n = start_idx[1] + o[1]
+      moves[start_idx] << [m, n] if valid_move?(board, start_idx, [m, n])
+    end
+    moves
+  end
+
   def valid_move?(board, start_idx, end_idx)
-    #note: en passant move is checked in chess class
+    #note: en passant capture is checked in chess class
     taking_opponent_piece = capturing?(board, end_idx)
     if taking_opponent_piece
       (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
