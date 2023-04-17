@@ -3,13 +3,14 @@ require_relative '../lib/queen.rb'
 describe Queen do
   describe '#valid_move?' do
     subject(:test_queen) { described_class.new }
+    let(:elem) { double(color: "black") }
     let(:board) { 
       [
         [nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil],
-        ["x", nil, "Q", "x", nil, nil],
-        [nil, nil, "x", nil, nil, nil],
-        [nil, nil, nil, nil, "x", nil],
+        [elem, nil, "Q", elem, nil, nil],
+        [nil, nil, elem, nil, nil, nil],
+        [nil, nil, nil, nil, elem, nil],
         [nil, nil, nil, nil, nil, nil]
       ]
     }
@@ -81,6 +82,60 @@ describe Queen do
         end_pt = [1, 4]
         res = test_queen.valid_move?(board, start_pt, end_pt)
         expect(res).to be false
+      end
+    end
+  end
+
+  describe '#moves' do
+    subject(:test_queen) { described_class.new }
+    let(:opponent) { double(color: "black") }
+    let(:teammate) { double(color: "white") }
+
+    context "when bishop's moves are constrained" do
+      let(:moves_board) { 
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, opponent, opponent, opponent, nil, nil, nil, nil], 
+          [nil, opponent, test_queen, opponent, nil, nil, nil, nil], #q at 2, 2
+          [nil, teammate, teammate, teammate, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns expected moves up to and including opponent but excluding teammates' do
+        res = test_queen.moves(moves_board, [2, 2])
+        value_to_check = res[[2, 2]]
+
+        expect(value_to_check).to match_array([[1, 1], [1, 2], [1, 3], [2, 1], [2, 3]])
+      end
+    end
+
+    context "when bishop's move are unconstrained" do
+      let(:moves_board) { 
+    
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, test_queen, nil, nil, nil, nil, nil], # at 2, 2
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns every square on each diagonal' do
+        res = test_queen.moves(moves_board, [2, 2])
+        value_to_check = res[[2, 2]]
+        moves = [
+          [0, 0], [1, 1], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [1, 3], [0, 4], [3, 1], [4, 0],
+          [2, 1], [2, 0], [1, 2], [0, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2]
+        ]
+        expect(value_to_check).to match_array(moves)
       end
     end
   end
