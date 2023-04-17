@@ -643,8 +643,6 @@ class Chess
   def opponent_pawn?(m, n)
     opponent_color = turn_white ? "black" : "white"
 
-    pp board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
-
     board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
   end
 
