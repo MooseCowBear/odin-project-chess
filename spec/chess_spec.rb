@@ -203,7 +203,7 @@ describe Chess do
     end
   end
 
-  describe '#def squares_in_range' do
+  describe '#squares_in_range' do
     context 'when the line is vertical' do
       it 'returns the expected squares' do
         pos1 = [3, 3]
@@ -294,7 +294,7 @@ describe Chess do
     end
   end
 
-  describe '#update_en_passant(piece, start_pt, end_pt)' do
+  describe '#update_en_passant' do
     context 'when the piece moved is not a pawn' do
       it 'does not update en_passant array' do
         piece = test_chess.board[7][1]
@@ -325,8 +325,6 @@ describe Chess do
 
         test_chess.board[4][2], test_chess.board[1][2] = test_chess.board[1][2], nil
 
-        test_chess.print_board("")
-
         piece = test_chess.board[6][1]
         test_chess.update_en_passant(piece, [6, 1], [4, 1])
 
@@ -336,6 +334,34 @@ describe Chess do
       ])
       end
     end
+  end
 
+  describe '#enpassant_rescues' do
+    king = King.new("black")
+    opawn = Pawn.new(0, "white")
+    pawn = Pawn.new(0, "black")
+    let(:ep_board) { 
+      [
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, king, nil, nil, nil, nil],
+        [nil, pawn, opawn, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+      ]
+    }
+    context 'when an en passant rescue from check is available' do
+      it 'updates the rescue property of the en passant object' do
+        test_chess.board = ep_board
+        test_chess.en_passant = [EnPassant.new([4, 1], [5, 2], [4, 2])]
+        test_chess.checks = [[opawn, [4, 2], [3, 3]]]
+
+        test_chess.enpassant_rescues
+
+        expect(test_chess.en_passant[0].rescue).to be true
+      end
+    end
   end
 end
