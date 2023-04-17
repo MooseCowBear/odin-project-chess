@@ -28,8 +28,7 @@ class King
     y1, x1 = start_idx
     y2, x2 = end_idx
     dist = distance(x1, y1, x2, y2)
-    return false unless distances.include?(dist)
-    true
+    distances.include?(dist)
   end
 
   def get_adjacent_positions(position)
