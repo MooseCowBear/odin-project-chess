@@ -1,4 +1,4 @@
-require_relative './euclid.rb' #need for intersection methods
+require_relative './euclid.rb' 
 require_relative './king.rb'
 require_relative './queen.rb'
 require_relative './bishop.rb'
@@ -164,7 +164,7 @@ class Chess
 
   def issue_move_warning
     puts "All moves must be legal."
-    
+
     puts "Enter a legal move:"
   end
 
