@@ -78,7 +78,6 @@ describe Bishop do
 
     context "when bishop's move are unconstrained" do
       let(:moves_board) { 
-    
         [
           [nil, nil, nil, nil, nil, nil, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil], 
