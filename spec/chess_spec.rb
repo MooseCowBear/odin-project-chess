@@ -364,4 +364,48 @@ describe Chess do
       end
     end
   end
+
+  describe '#promotion?' do
+    king = King.new("black")
+    opawn = Pawn.new(0, "white")
+    pawn = Pawn.new(0, "black")
+    let(:promotion_board) { 
+      [
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, opawn, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, pawn, king, nil, nil, nil, nil],
+      ]
+    }
+
+    context "when a pawn reaches its opponent's side" do
+      it 'returns true' do
+        test_chess.turn_white = false
+        test_chess.board = promotion_board
+        res = test_chess.promotion?([7, 2])
+        expect(res).to be true
+      end
+    end
+
+    context "when a nonpawn reaches opponent's side" do 
+      it 'returns false' do
+        test_chess.turn_white = false
+        test_chess.board = promotion_board
+        res = test_chess.promotion?([4, 1])
+        expect(res).to be false
+      end
+    end
+
+    context "when a pawn does not reach opponent's side" do
+      it 'returns false' do
+        test_chess.board = promotion_board
+        res = test_chess.promotion?([7, 3])
+        expect(res).to be false
+      end
+    end
+  end
 end
