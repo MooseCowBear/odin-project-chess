@@ -46,8 +46,8 @@ class Pawn
 
   def moves(board, start_idx)
     moves = { start_idx => [] }
-    dir = color == white ? -1 : 1
-    offsets = [ [dir, 0], [dir * 2, 0], [dir, 1], [dir, -1] ]
+    dir = color == "white" ? -1 : 1
+    offsets = [ [dir, 0], [dir * 2, 0], [dir, 1], [dir, -1] ] 
     offsets.each do |o|
       m = start_idx[0] + o[0]
       n = start_idx[1] + o[1]
@@ -65,7 +65,7 @@ class Pawn
     else
       (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
       correct_direction?(start_idx, end_idx) && 
-      clear_vertical_path?(board, start_idx, end_idx, true))
+      clear_vertical_path?(color, board, start_idx, end_idx, true))
     end
   end
 
@@ -73,15 +73,11 @@ class Pawn
 
   def correct_distance?(start_idx, end_idx, capture)
     dist = distance(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return true if !capture && (dist == 1.0 || (dist == 2.0 && !moved))
-    return true if capture && dist == Math.sqrt(2)
-    false
+    (!capture && (dist == 1.0 || (dist == 2.0 && !moved))) || (capture && dist == Math.sqrt(2))
   end
 
   def capturing?(board, end_idx)
-    #just checking if they are attempting to capture. capturing on the diagonal gets tested in correct distance
-    return false if board[end_idx[0]][end_idx[1]].nil? || board[end_idx[0]][end_idx[1]].color == self.color
-    true
+    !board[end_idx[0]][end_idx[1]].nil? && board[end_idx[0]][end_idx[1]].color != self.color
   end
 
   def correct_direction?(start_idx, end_idx)
