@@ -35,7 +35,7 @@ class Chess
     @pins = []
   end
 
-  def play #assumes new game
+  def play_new_game
     self.player_white = get_player("white")
 
     self.player_black = get_player("black")
@@ -65,7 +65,7 @@ class Chess
     self.board = Array.new(8) { Array.new(8) } 
 
     players = ["white", "black"]
-    
+
     players.each do |player| 
       king = King.new(player)
       m, n = king.get_start_position
@@ -189,7 +189,7 @@ class Chess
   end
 
   def in_enpassant?(start_pt, end_pt)
-    if checks.length > 0:
+    if checks.length > 0
       en_passant.any? { |elem| elem.from == start_pt && elem.to == end_pt && elem.rescue }
     else
       en_passant.any? { |elem| elem.from == start_pt && elem.to == end_pt }
@@ -234,8 +234,8 @@ class Chess
 
     m = move.downcase 
     [
-      [covert_row(m[0]), convert_column(m[1])], 
-      [[convert_row(m[2])], convert_column(m[3])]
+      [convert_row(m[1]), convert_column(m[0])], 
+      [convert_row(m[3]), convert_column(m[2])]
     ]
   end
 
@@ -275,7 +275,7 @@ class Chess
       :checks_arr => []
     }
 
-    directions = [ [0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1] ]
+    directions = [ [0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1] ]
 
     directions.each do |d|
       m = 1
@@ -342,7 +342,7 @@ class Chess
     moves = noncastling_king_moves
 
     if checks.length == 1
-      king = turn_white? white_king_position : black_king_position
+      king = turn_white ? white_king_position : black_king_position
 
       moves = moves.merge(defender_moves(king, checks[0][1]))
 
@@ -645,7 +645,7 @@ class Chess
   #pawn promotion
 
   def promotion?(end_pt)
-    opponent_side = turn_white? 0 : 7
+    opponent_side = turn_white ? 0 : 7
 
     board[end_pt[0]][end_pt[1]].is_a?(Pawn) && end_pt[0] == opponent_side
   end
