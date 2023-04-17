@@ -86,4 +86,75 @@ describe Pawn do
       end
     end
   end
+
+  describe '#moves' do
+    subject(:test_pawn) { described_class.new(1, "black") }
+    let(:opponent) { double(color: "white") }
+    let(:teammate) { double(color: "black") }
+
+    context 'when the pawn has opponents to capture' do 
+      let(:moves_board) { 
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
+          [opponent, nil, opponent, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns moves that include captures' do
+        res = test_pawn.moves(moves_board, [1, 1])
+        value_to_check = res[[1, 1]]
+
+        expect(value_to_check).to match_array([[2, 0], [2, 2], [2, 1], [3, 1]])
+      end
+    end
+
+    context 'when the pawn has no captures, has not moved, has two free spaces before it' do
+      let(:moves_board) { 
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns two possible moves' do
+        res = test_pawn.moves(moves_board, [1, 1])
+        value_to_check = res[[1, 1]]
+
+        expect(value_to_check).to match_array([[2, 1], [3, 1]])
+      end
+    end
+    context 'when the path is blocked and no captures available' do
+      let(:moves_board) { 
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
+          [nil, opponent, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns an empty hash' do
+        res = test_pawn.moves(moves_board, [1, 1])
+        value_to_check = res[[1, 1]]
+
+        expect(value_to_check).to match_array([])
+      end
+    end
+  end
 end
