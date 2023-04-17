@@ -12,6 +12,7 @@ require_relative './board_check.rb'
 
 class Chess
   include Euclid
+  include BoardCheck
 
   attr_accessor :player_white, :player_black, 
     :board, :turn_white, :white_king_position, 
@@ -270,10 +271,7 @@ class Chess
     #ie. the king would be in check if he moved there
     #pass square as the first parameter and set want_pins to false
 
-    moves = {
-      :pins_arr => [],
-      :checks_arr => []
-    }
+    moves = Hash.new { |h, k| h[k] = [] }
 
     directions = [ [0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1] ]
 
@@ -285,32 +283,32 @@ class Chess
       while on_board?(square)
         piece = board[square[0]][square[1]]
 
-        next if piece.nil?
-
-        if piece.color == p_color && possible_pin.nil?
+        if piece&.color == p_color && possible_pin.nil?
           if want_pins
             possible_pin = Pin.new(piece, square, king) 
           else
             break #if we are just checking pass thrus for castle or king moves, then we don't care about pin for square king is thinking about moving to or thru
           end
-        elsif piece.color == p_color && !possible_pin.nil? #did we hit a second teammate? niether are pins and can't have a check
+        elsif piece&.color == p_color && !possible_pin.nil? #did we hit a second teammate? niether are pins and can't have a check
           break
-        elsif piece.color == o_color
+        elsif piece&.color == o_color
           if possible_pin.nil?
             #can this opponent piece attack?
+            
             attacking = mechanically_correct(piece, square, king) 
-            moves[checks_arr] << [piece, square, king] if attacking
+            moves["checks_arr"] << [piece, square, king] if attacking
             break 
           else 
             #the check for whether our possible pin is an actual pin
             #ie. if the pin isn't there, does opponent have an attack?
-            m = possible_pin[1][0]
-            n = possible_pin[1][1]
+            m = possible_pin.position[0]
+            n = possible_pin.position[1]
+
             get_test_board(m, n)
 
             attacking = mechanically_correct(piece, square, king) 
             possible_pin.update_defense(square) if attacking
-            moves[pins_arr] << possible_pin if attacking 
+            moves["pins_arr"] << possible_pin if attacking 
 
             revert_board(possible_pin.identity, m, n) 
             break 
@@ -328,10 +326,18 @@ class Chess
       row = king[0] + p[0]
       col = king[1] + p[1]
 
-      piece = board[row][col]
-      moves[checks_arr] << [piece, [row, col], king] if piece.is_a?(Knight) && piece.color == o_color 
+      #need to check that we are on board
+      if on_board?([row, col])
+        piece = board[row][col]
+        moves["checks_arr"] << [piece, [row, col], king] if piece.is_a?(Knight) && piece.color == o_color 
+      end
     end
     moves
+  end
+
+  def get_square(pos, direction, multiplier)
+    d = direction.map { |elem| elem * multiplier }
+    [pos[0] + d[0], pos[1] + d[1]] 
   end
 
   def from_check_moves
@@ -368,19 +374,22 @@ class Chess
 
     king_pos = curr_king
 
-    king =  board[king_pos[0]][king_pos[1]]
+    king = board[king_pos[0]][king_pos[1]]
     p_color = player_color
     o_color = opponent_color
 
     king_moves = Hash.new { |h, k| h[k] = [] }
 
     adj = king.get_adjacent_positions(king_pos)
+
+    get_test_board(king_pos[0], king_pos[1])
     
     adj.each do |pos|
       m = get_checks_and_pins(pos, p_color, o_color, false)
 
-      king_moves[king_pos] << square if m[checks_arr].empty? 
+      king_moves[king_pos] << pos if m.empty? 
     end
+    revert_board(king, king_pos[0], king_pos[1])
     king_moves
   end
 
@@ -396,22 +405,23 @@ class Chess
     squares.each do |sq|
       res = get_checks_and_pins(sq, opponent_color, player_color, false) #switch colors
 
-      defenders += defenders[checks_arr] 
+      defenders += res["checks_arr"] if res.has_key?("checks_arr")
     end
 
-    moves = convert_defenders(defenders)
-
     enpassant_rescues 
+    moves = convert_defenders(defenders)
   end
 
   def convert_defenders(defenders)
     #so we can combine defender moves with king moves in a single hash
+    #need to exclude king moves, bc defender_moves does not
 
     conversion = Hash.new { |h, k| h[k] = [] }
 
     defenders.each do |elem|
-      conversion[elem[1]] << elem[2]
+      conversion[elem[1]] << elem[2] unless elem[0].is_a?(King)
     end
+    conversion
   end
 
   def pin_moves
@@ -424,7 +434,7 @@ class Chess
       squares.each do |sq|
         good_move = mechanically_correct(pin.identity, pin.position, sq)
 
-        moves[pin.position] << sq if good_move
+        moves[pin.position] << sq if good_move && sq != pin.position
       end
     end
     moves
@@ -435,27 +445,23 @@ class Chess
     #checking the "line" between the king and an opponent
     #this fuction grabs all the squares on that line
 
-    squares = [opponent]
+    squares = []
     slope = slope(king[1], king[0], opponent[1], opponent[0])
 
-    if slope.nil?
-      dir = king[0] < opponent[0] ? 1 : -1
-      y = king[0]
-      x = king[1]
+    dir = king[1] < opponent[1] ? 1 : -1
+    x = king[1] 
+    y = king[0] 
 
-      until x == opponent[0]
+    if slope.nil?
+      until y == opponent[0]
         y += 1
         squares << [y, x]
       end
     else
-      dir = king[1] < opponent[1] ? 1 : -1
-      x = king[1] 
-      y = king[0] 
-
-      until x == opponent[0]
-        x = x + dir
-        y = y + slope * dir
-        squares << [y, x]
+      until x == opponent[1]
+        x += dir
+        y += slope * dir
+        squares << [y.to_i, x.to_i]
       end
     end
     squares 
@@ -480,8 +486,8 @@ class Chess
   end
 
   def update_pins_checks(hash)
-    self.pins = hash[pins_arr]
-    self.checks = hash[checks_arr]
+    self.pins = hash["pins_arr"]
+    self.checks = hash["checks_arr"]
   end
 
   def enpassant_rescues
@@ -491,15 +497,10 @@ class Chess
   end
 
   def mechanically_correct(piece, start_pos, end_pos)
-    piece.valid_move?(board, start_pos, end_pos) || en_passant[start_pos].include?(end_pos)
+    piece.valid_move?(self.board, start_pos, end_pos) || in_enpassant?(start_pos, end_pos)
   end
 
   #helper functions
-  def get_square(pos, direction, multiplier)
-    d = direction.map { |elem| elem * multiplier }
-    
-    [pos[0] + d[0], pos[1] + d[1]] 
-  end
 
   def curr_king 
     turn_white ? white_king_position : black_king_position
@@ -514,7 +515,7 @@ class Chess
   end
 
   def get_test_board(m, n)
-    self.board[m, n] = nil
+    self.board[m][n] = nil
   end
   
   def revert_board(piece, m, n)
@@ -551,19 +552,19 @@ class Chess
     k = king_side
 
     if castle?(q)
-      castles << Castle.new(q.king, [q.king[0], q.king[1] - 2], q.rook, [q.king[0], q.king[1] - 1])
+      castles << Castle.new(q[:king], [q[:king][0], q[:king][1] - 2], q[:rook], [q[:king][0], q[:king][1] - 1])
     end
 
     if castle?(k)
-      castles << Castle.new(k.king, [k.king[0], k.king[1] + 2], q.rook, [q.king[0], q.king[1] + 1])
+      castles << Castle.new(k[:king], [k[:king][0], k[:king][1] + 2], q[:rook], [q[:king][0], q[:king][1] + 1])
     end
     castles #need??
   end
 
   def castle?(side)
-    return false unless king_eligible(side.king) && rook_eligible(side.rook)
+    return false unless king_eligible(side[:king]) && rook_eligible(side[:rook])
 
-    safe_passage?(side.king[0], side.king[1], side.king[1] + 2) && clear_passage?(side.king[0], side.king[1], side.rook[1])
+    safe_passage?(side[:king][0], side[:king][1], side[:king][1] + 2) && clear_passage?(side[:king][0], side[:king][1], side[:rook][1])
   end
 
   def queen_side
@@ -581,22 +582,30 @@ class Chess
   end
 
   def king_eligible(pos)
-    board[king_pos[0]][king_pos[1]].is_a?(King) && !board[king_pos[0]][king_pos[1]].moved
+    board[pos[0]][pos[1]].is_a?(King) && !board[pos[0]][pos[1]].moved
   end
 
   def rook_eligible(pos)
-    board[king_pos[0]][king_pos[1]].is_a?(Rook) && !board[king_pos[0]][king_pos[1]].moved
+    board[pos[0]][pos[1]].is_a?(Rook) && !board[pos[0]][pos[1]].moved
   end
 
   def safe_passage?(row, min, max)
+    if min > max
+      min, max = max, min
+    end
+
     min.upto(max) do |col| 
-      x = get_checks_and_pins([row, col], player_color, opponent_color, false) 
-      return false unless x[checks_arr].empty? 
+      checked = get_checks_and_pins([row, col], player_color, opponent_color, false) 
+      return false unless checked["checks_arr"].empty? 
     end
     true
   end
 
   def clear_passage?(row, min, max)
+    if min > max
+      min, max = max, min
+    end
+
     (min + 1).upto(max - 1) do |col|
       return false unless board[row][col].nil? 
     end
@@ -607,6 +616,7 @@ class Chess
 
   def update_en_passant(piece, start_pt, end_pt)
     self.en_passant = []
+
     return unless piece.is_a?(Pawn) && distance(start_pt[1], start_pt[0], end_pt[1], end_pt[0]) == 2.0 
 
     left = left_neighbor(end_pt)
@@ -621,23 +631,25 @@ class Chess
   def right_neighbor(end_pt)
     return nil if end_pt[1] + 1 > 7 || !opponent_pawn?(end_pt[0], end_pt[1] + 1)
 
-    EnPassant([end_pt[0], end_pt[1] + 1], ep_end_position(end_pt), end_pt)
+    EnPassant.new([end_pt[0], end_pt[1] + 1], ep_end_position(end_pt), end_pt)
   end
 
   def left_neighbor(end_pt)
     return nil if end_pt[1] - 1 < 0 || !opponent_pawn?(end_pt[0], end_pt[1] - 1)
 
-    EnPassant([end_pt[0], end_pt[1] - 1], ep_end_position(end_pt), end_pt)
+    EnPassant.new([end_pt[0], end_pt[1] - 1], ep_end_position(end_pt), end_pt) 
   end
 
   def opponent_pawn?(m, n)
     opponent_color = turn_white ? "black" : "white"
 
+    pp board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
+
     board[m][n].is_a?(Pawn) && board[m][n].color == opponent_color
   end
 
   def ep_end_position(end_pt)
-    turn_white ? [end_pt[0] - 1, end_pt[1]] : [end_pt[0 + 1], end_pt[1]]
+    turn_white ? [end_pt[0] + 1, end_pt[1]] : [end_pt[0] - 1, end_pt[1]]
   end
 
   #end helper functions for enpassant
