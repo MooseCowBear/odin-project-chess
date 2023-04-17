@@ -49,13 +49,11 @@ class Knight
 
   def correct_slope?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return false unless slopes.include?(slope)
-    true
+    slopes.include?(slope)
   end
 
   def correct_distance?(start_idx, end_idx)
     dist = distance(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    return false unless distances.include?(dist)
-    true
+    distances.include?(dist)
   end
 end
