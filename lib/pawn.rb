@@ -77,7 +77,7 @@ class Pawn
   end
 
   def capturing?(board, end_idx)
-    !board[end_idx[0]][end_idx[1]].nil? && board[end_idx[0]][end_idx[1]].color != self.color
+    board[end_idx[0]][end_idx[1]]&.color != self.color
   end
 
   def correct_direction?(start_idx, end_idx)
