@@ -6,7 +6,8 @@ module PathChecker
   #not ok to move a piece if it is the only thing standing in the way of king and opponent piece
 
   def clear_non_vertical_path?(own_color, board, start_idx, end_idx, slope)
-    return false if board[end_idx[0]][end_idx[1]].color == own_color
+    return false if board[end_idx[0]][end_idx[1]]&.color == own_color
+
     start_idx, end_idx = order_non_vert(start_idx, end_idx)
 
     y1, x1 = start_idx
@@ -20,7 +21,8 @@ module PathChecker
   end
 
   def clear_vertical_path?(own_color, board, start_idx, end_idx, pawn = false)
-    return false if board[end_idx[0]][end_idx[1]].color == own_color
+    return false if board[end_idx[0]][end_idx[1]]&.color == own_color
+
     start_idx, end_idx = order_vert(start_idx, end_idx)
 
     y1, x1 = start_idx
@@ -31,7 +33,7 @@ module PathChecker
     end
 
     if pawn
-      return false unless board[end_idx[0]][end_idx[1]].nil? #if dealing with a pawn, need to make sure the space moving into isn't blocked 
+      return false unless board[end_idx[0]][end_idx[1]].nil? #if dealing with a pawn, need to make sure the space moving into isn't blocked (by any color)
     end
     true
   end
