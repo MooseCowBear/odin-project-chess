@@ -26,7 +26,7 @@ class Chess
     @white_king_position = [7, 4]
     @black_king_position = [0, 4] 
     @num_moves = 0
-    @en_passant = [] #will hold EnPassant objects, upto 2 possible
+    @en_passant = [] 
     @stalemate = false
     @checkmate = false
     @winner = nil
@@ -62,9 +62,10 @@ class Chess
   end
 
   def get_starting_board
-    self.board = Array.new(8) { Array.new(8) } #later, update to read in board from file
+    self.board = Array.new(8) { Array.new(8) } 
 
     players = ["white", "black"]
+    
     players.each do |player| 
       king = King.new(player)
       m, n = king.get_start_position
@@ -159,7 +160,7 @@ class Chess
     loop do
       move = gets.chomp
 
-      if move_on_board(move)
+      if move_on_board?(move)
         move = convert_move(move)
 
         return move if legal?(move, nonspecial_moves, castles)
@@ -224,12 +225,13 @@ class Chess
   end
 
   def move_on_board?(input)
-    !!/^[A-Ha-h]{1}[1-8]{1}[A-Ha-h]{1}[1-8]{1}$/.match(input) #test this
+    !!/^[A-Ha-h]{1}[1-8]{1}[A-Ha-h]{1}[1-8]{1}$/.match(input) 
   end
 
   def convert_move(move)
     #need to convert inputs like a4b2 to pairs of matrix indices
     #letter is column, number is row
+
     m = move.downcase 
     [
       [covert_row(m[0]), convert_column(m[1])], 
@@ -238,7 +240,7 @@ class Chess
   end
 
   def print_board(state)
-    puts "\nThe #{state} board is: \n" #a little bit of spacing?
+    puts "\nThe #{state} board is: \n" 
     puts "    a   b   c   d   e   f   g   h  "
     puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
   
@@ -256,13 +258,17 @@ class Chess
       puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
       row_label -= 1
     end
+    puts ""
   end
 
   #start refactor functions
 
   def get_checks_and_pins(king, p_color, o_color, want_pins = true)
-    #strategy: look at king position. 
+    #strategy: look at king position.
     #go out in all directions looking for first opponent elem. 
+    #to use this method to check if a square is under attack
+    #ie. the king would be in check if he moved there
+    #pass square as the first parameter and set want_pins to false
 
     moves = {
       :pins_arr => [],
@@ -311,7 +317,7 @@ class Chess
           end
         end
         m += 1
-        square = get_square(d, m)
+        square = get_square(king, d, m)
       end #end while loop
     end #end directions loop
 
@@ -328,20 +334,11 @@ class Chess
     moves
   end
 
-  #what moves can be made in check
-  # 1. noncastling_king_moves (double or single)
-  # 2. defender moves (single)
-
-  # what moves can be made not in check
-  # 1. noncastling king moves
-  # 2. pin moves 
-  # 3. castling moves (if otherwise available)
-  # 4. any piece that is not a pin can make any mechanically correct move 
- 
-  # added method(s) to generate moves of unpinned pieces (ie 4) - need to update classes so that it will work
-
-  #two methods to aggregate non special moves so less to pass to make move method
   def from_check_moves
+    #if double check, then can only move the king
+    #otherwise, we need to check for defensive moves
+    #and trivial pin moves
+
     moves = noncastling_king_moves
 
     if checks.length == 1
@@ -355,6 +352,10 @@ class Chess
   end
 
   def non_check_moves
+    #moves when not in check include king,
+    #pin moves,
+    #nonpin moves (castling and en passant moves are determined elsewhere)
+
     moves = noncastling_king_moves
 
     moves = moves.merge(pin_moves)
@@ -364,6 +365,7 @@ class Chess
 
   def noncastling_king_moves 
     #getting the moves the king can make without putting himself in check
+
     king_pos = curr_king
 
     king =  board[king_pos[0]][king_pos[1]]
@@ -382,10 +384,11 @@ class Chess
     king_moves
   end
 
-  #ONLY CARE IF IN CHECK by single opponent piece
   def defender_moves(king, opponent)
     #getting moves that either capture a checking piece
     #or that block the line of attack for a checking piece
+    #includes marking enpassant moves if they can defend
+
     squares = squares_in_range(king, opponent)
 
     defenders = []
@@ -393,16 +396,19 @@ class Chess
     squares.each do |sq|
       res = get_checks_and_pins(sq, opponent_color, player_color, false) #switch colors
 
-      defenders += defenders[checks_arr] #are of form: [piece, piece position, attacking pos] 
+      defenders += defenders[checks_arr] 
     end
 
     moves = convert_defenders(defenders)
 
-    enpassant_rescues
+    enpassant_rescues 
   end
 
   def convert_defenders(defenders)
+    #so we can combine defender moves with king moves in a single hash
+
     conversion = Hash.new { |h, k| h[k] = [] }
+
     defenders.each do |elem|
       conversion[elem[1]] << elem[2]
     end
@@ -410,6 +416,7 @@ class Chess
 
   def pin_moves
     #getting moves a pin can make while remaining a pin
+
     moves = Hash.new { |h, k| h[k] = [] }
     pins.each do |pin| 
       squares = squares_in_range(pin.defending_position, pin.defending_against)
@@ -423,9 +430,11 @@ class Chess
     moves
   end
 
-  #for getting the moves out of check - also need the possibility that their pawn that i can take en passant is the thing checking me
-  #if single check, then want to see if i can moves to any of these squares - if yes, these are possible ways out that do not involve the king moving
-  def squares_in_range(king, opponent) #positions
+  def squares_in_range(king, opponent) 
+    #getting defender moves and pin moves involves
+    #checking the "line" between the king and an opponent
+    #this fuction grabs all the squares on that line
+
     squares = [opponent]
     slope = slope(king[1], king[0], opponent[1], opponent[0])
 
@@ -452,12 +461,15 @@ class Chess
     squares 
   end
 
-  def unpinned_moves 
+  def unpinned_moves
+    #find all nonpin teammates 
+    #and determine their moves
+
     possible_moves = Hash.new
 
     board.each_with_index do |row, m| 
       row.each_with_index do |piece, n|
-        next if pins.any? { |pin| pin.identity == piece } || piece.color != player_color
+        next if pins.any? { |pin| pin.identity == piece } || piece.color != player_color 
 
         m = piece.moves(board, [m, n])
 
@@ -474,6 +486,7 @@ class Chess
 
   def enpassant_rescues
     rescues = en_passant.select { |elem| elem.opponent_pawn_pos == checks[0][1] }
+
     rescues.each { |e| e.rescue = true } 
   end
 
@@ -482,8 +495,10 @@ class Chess
   end
 
   #helper functions
-  def get_square(direction, multiplier)
-    direction.map { |elem| elem * multiplier }
+  def get_square(pos, direction, multiplier)
+    d = direction.map { |elem| elem * multiplier }
+    
+    [pos[0] + d[0], pos[1] + d[1]] 
   end
 
   def curr_king 
@@ -605,11 +620,13 @@ class Chess
 
   def right_neighbor(end_pt)
     return nil if end_pt[1] + 1 > 7 || !opponent_pawn?(end_pt[0], end_pt[1] + 1)
+
     EnPassant([end_pt[0], end_pt[1] + 1], ep_end_position(end_pt), end_pt)
   end
 
   def left_neighbor(end_pt)
     return nil if end_pt[1] - 1 < 0 || !opponent_pawn?(end_pt[0], end_pt[1] - 1)
+
     EnPassant([end_pt[0], end_pt[1] - 1], ep_end_position(end_pt), end_pt)
   end
 
@@ -628,13 +645,12 @@ class Chess
   #pawn promotion
 
   def promotion?(end_pt)
-    #check after the move has been made whether it was a pawn and end pt was end side of board
     opponent_side = turn_white? 0 : 7
+
     board[end_pt[0]][end_pt[1]].is_a?(Pawn) && end_pt[0] == opponent_side
   end
 
   def promote_pawn(position)
-    #get player choice of piece, put on board at position
     if promotion?(position)
       choice = get_promotion_choice
 
