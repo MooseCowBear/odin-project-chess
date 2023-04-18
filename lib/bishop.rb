@@ -2,6 +2,8 @@ require_relative './euclid.rb'
 require_relative './path_checker.rb'
 require_relative './board_check.rb'
 
+require 'set'
+
 class Bishop
   include Euclid
   include PathChecker
