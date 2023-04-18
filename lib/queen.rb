@@ -25,7 +25,7 @@ class Queen
   end
 
   def moves(board, start_idx)
-    moves = { start_idx => [] }
+    moves = Hash.new { |h, k| h[k] = [] }
     offsets = [ [0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1] ]
     offsets.each do |o|
       m = start_idx[0] + o[0]
