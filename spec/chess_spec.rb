@@ -59,7 +59,7 @@ describe Chess do
   describe '#get_checks_and_pins' do
     context 'when starting board position' do
       it 'finds no checks' do
-        res = test_chess.get_checks_and_pins([3, 3], "white", "black")
+        res = test_chess.get_checks_and_pins([7, 4], "white", "black")
         checks = res["checks_arr"]
         expect(checks).to match_array([])
       end
@@ -296,23 +296,23 @@ describe Chess do
   end
 
   describe '#pin_moves' do
-    king = King.new
-    op_queen = Queen.new("black")
-    rook = Rook.new
-    let(:pin_board) { 
-      [
-        [king, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil], 
-        [rook, nil, nil, nil, nil, nil, nil, nil], 
-        [queen, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil], 
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-      ]
-    }
-
     context 'when pin has moves it can make' do
+      king = King.new
+      op_queen = Queen.new("black")
+      rook = Rook.new
+      let(:pin_board) { 
+        [
+          [king, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [rook, nil, nil, nil, nil, nil, nil, nil], 
+          [op_queen, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
       it 'returns pins moves' do
         pin = Pin.new(rook, [2, 0], [0, 0])
         pin.update_defense([3, 0])
@@ -322,6 +322,71 @@ describe Chess do
         expect(res). to include(
           [2, 0] => [[1, 0], [3, 0]]
         )
+      end
+    end
+
+    context 'when there are multiple pins with moves' do
+      king = King.new
+      op_queen = Queen.new("black")
+      bishop = Bishop.new
+      pawn = Pawn.new
+      pawn.moved = true
+      op_rook = Rook.new(0, "black")
+      let(:pin_board) { 
+        [
+          [king, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, bishop, nil, nil, nil, nil, nil], 
+          [pawn, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, op_queen, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [op_rook, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns moves for each pin' do
+        pin1 = Pin.new(pawn, [3, 0], [0, 0])
+        pin1.update_defense([7, 0])
+        pin2 = Pin.new(bishop, [2, 2], [0, 0])
+        pin2.update_defense([5, 5])
+
+        test_chess.board = pin_board
+        test_chess.pins = [pin1, pin2]
+
+        res = test_chess.pin_moves
+        expected = {
+          [3, 0] => [[2, 0]],
+          [2, 2] => [[1, 1], [3, 3], [4, 4], [5, 5]]
+        }
+        expect(res).to match_hash(expected)
+      end
+    end
+
+    context 'when there is a pin but it has no moves' do
+      king = King.new
+      op_queen = Queen.new("black")
+      knight = Knight.new
+      let(:pin_board) { 
+        [
+          [king, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, knight, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, op_queen, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns an empty hash' do
+        pin = Pin.new(knight, [2, 2], [0, 0])
+        pin.update_defense([5, 5])
+        test_chess.pins << pin
+
+        res = test_chess.pin_moves
+        expect(res).to eq({})
       end
     end
   end
@@ -437,6 +502,74 @@ describe Chess do
         test_chess.board = promotion_board
         res = test_chess.promotion?([7, 3])
         expect(res).to be false
+      end
+    end
+  end
+
+  describe '#unpinned_moves' do
+    context 'when board is the opening board' do
+      it 'returns expected moves for pawns, knights' do
+        expected = {
+          [6, 0] => [[5, 0], [4, 0]],
+          [6, 1] =>[[5, 1], [4, 1]], 
+          [6, 2] => [[5, 2], [4, 2]],
+          [6, 3] => [[5, 3], [4, 3]],
+          [6, 4] => [[5, 4], [4, 4]],
+          [6, 5] => [[5, 5], [4, 5]],
+          [6, 6] => [[5, 6], [4, 6]],
+          [6, 7] => [[5, 7], [4, 7]],
+          [7, 1] => [[5, 2], [5, 0]],
+          [7, 6] => [[5, 5], [5, 7]]
+        }
+
+        res = test_chess.unpinned_moves
+        expect(res).to match_hash(expected)
+      end
+    end
+
+    context 'when the board has pins, unpinned moves excludes their moves' do
+      bK = King.new("black")
+      bQ = Queen.new("black")
+      bR = Rook.new(0, "black")
+      wP = Pawn.new
+      wB = Bishop.new
+      let(:unpinned_moves_board) { 
+        [
+          [nil, nil, nil, bQ, bK, nil, nil, nil],
+          [nil, nil, nil, nil, nil, bR, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, wB, nil], 
+          [nil, nil, nil, wP, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+      }
+
+      it 'returns all of queens moves when she is the only non pin on the board' do
+        test_chess.board = unpinned_moves_board
+        test_chess.turn_white = false
+
+        #set the pin 
+        pin = Pin.new(bR, [1, 5], [0, 4])
+        pin.update_defense([2, 6])
+        test_chess.pins = [pin]
+
+        expected = {
+          [0, 3] => [
+            [0, 0], [0, 1], [0, 2],
+            [1, 3], [2, 3], [3, 3],
+            [1, 4], [2, 5], [3, 6], [4, 7],
+            [1, 2], [2, 1], [3, 0]
+          ]
+        }
+
+        res = test_chess.unpinned_moves
+        expect(res).to match_hash(expected)
+      end
+
+      it 'returns also returns correct bishop moves when non-pin bishop is also on board' do
+        #add a teammate biship to above board
       end
     end
   end
