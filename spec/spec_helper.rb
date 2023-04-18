@@ -96,3 +96,30 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+#custom matcher for hash with values that are arrays, when don't care about array order
+RSpec::Matchers.define :match_hash do |expected|
+  match do |actual|
+    matches_hash?(expected, actual) 
+  end
+end
+
+def matches_hash?(expected, actual) 
+  expected.keys.each { |elem| actual.keys.include?(elem) } &&
+  actual.keys.each { |elem| expected.keys.include?(elem) } &&
+  actual_has_expected(actual, expected) &&
+  expected_has_actual(actual, expected)
+end   
+
+def actual_has_expected(actual, expected)
+  actual.all? do |k, v|
+    v.all? { |elem| expected[k].include?(elem) } &&
+    actual[k].length == expected[k].length
+  end
+end
+
+def expected_has_actual(actual, expected)
+  expected.all? do |k, v|
+    v.all? { |elem| actual[k].include?(elem) }
+  end
+end
