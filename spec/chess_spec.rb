@@ -569,7 +569,30 @@ describe Chess do
       end
 
       it 'returns also returns correct bishop moves when non-pin bishop is also on board' do
-        #add a teammate biship to above board
+        #add a teammate bishop to above board
+        bB = Bishop.new(0, "black")
+        unpinned_moves_board[3][7] = bB
+        test_chess.board = unpinned_moves_board
+        test_chess.turn_white = false
+
+        #set the pin 
+        pin = Pin.new(bR, [1, 5], [0, 4])
+        pin.update_defense([2, 6])
+        test_chess.pins = [pin]
+
+        expected = {
+          [0, 3] => [
+            [0, 0], [0, 1], [0, 2],
+            [1, 3], [2, 3], [3, 3],
+            [1, 4], [2, 5], [3, 6], [4, 7],
+            [1, 2], [2, 1], [3, 0]
+          ],
+          [3, 7] => [
+            [2, 6], [4, 6], [5, 5], [6, 4], [7, 3]
+          ]
+        }
+        res = test_chess.unpinned_moves
+        expect(res).to match_hash(expected)
       end
     end
   end
