@@ -474,11 +474,11 @@ class Chess
 
     board.each_with_index do |row, m| 
       row.each_with_index do |piece, n|
-        next if pins.any? { |pin| pin.identity == piece } || piece.color != player_color 
+        next if pins.any? { |pin| pin.identity == piece } || piece&.color != player_color || piece.is_a?(King)
 
-        m = piece.moves(board, [m, n])
+        moves = piece.moves(board, [m, n])
 
-        possible_moves.merge(m)
+        possible_moves = possible_moves.merge(moves)
       end
     end
     possible_moves
