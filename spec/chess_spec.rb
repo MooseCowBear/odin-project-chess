@@ -164,26 +164,33 @@ describe Chess do
 
     context 'when the a square the king travels through is under attack' do
       king = King.new
-      op_queen = Queen.new("black")
+      op_rook = Rook.new(0, "black")
       rook = Rook.new
       let(:no_castle_board) { 
         [
           [nil, nil, nil, nil, nil, nil, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil], 
           [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, op_queen, nil, nil, nil, nil, nil],
+          [nil, nil, op_rook, nil, nil, nil, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil], 
           [nil, nil, nil, nil, nil, nil, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil],
-          [rook, nil, nil, nil, king, nil, nil, nil],
+          [rook, nil, nil, nil, king, nil, nil, rook],
         ]
       }
       
-      it 'returns false' do
+      it 'returns false for side under attack' do
+        test_chess.board = no_castle_board
+        q = test_chess.queen_side
+        res = test_chess.castle?(q)
+        expect(res).to be false
+      end
+
+      it 'returns true for side not under attack' do
         test_chess.board = no_castle_board
         k = test_chess.king_side
         res = test_chess.castle?(k)
-        expect(res).to be false
+        expect(res).to be true
       end
     end
   end
