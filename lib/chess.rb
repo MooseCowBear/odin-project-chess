@@ -51,11 +51,15 @@ class Chess
         puts "Would you like to load a saved game?"
 
         load = gets.chomp.downcase
+
         if load == 'y' || load == 'yes'
           loop do 
             puts "Enter the number of the game you would like to load."
+
             display_game_choices(games)
+
             choice = gets.chomp
+
             if validate_choice(choice.to_i, games)
               game = games[choice - 1]
               new_game = false
@@ -91,7 +95,6 @@ class Chess
       self.player_black = get_player("black")
     end
   end
-
 
   def get_starting_board
     self.board = Array.new(8) { Array.new(8) } 
@@ -550,7 +553,8 @@ class Chess
 
     dir = side[:king][1] < side[:rook][1] ? 2 : -2
 
-    safe_passage?(side[:king][0], side[:king][1], side[:king][1] + dir) && clear_passage?(side[:king][0], side[:king][1], side[:rook][1])
+    safe_passage?(side[:king][0], side[:king][1], side[:king][1] + dir) && 
+    clear_passage?(side[:king][0], side[:king][1], side[:rook][1])
   end
 
   def queen_side
@@ -710,7 +714,8 @@ class Chess
   end
 
   def mechanically_correct(piece, start_pos, end_pos)
-    piece.valid_move?(self.board, start_pos, end_pos) || in_enpassant?(start_pos, end_pos)
+    piece.valid_move?(self.board, start_pos, end_pos) || 
+    in_enpassant?(start_pos, end_pos)
   end
 
   def curr_king 
