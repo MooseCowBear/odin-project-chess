@@ -9,17 +9,20 @@ require_relative './pin.rb'
 require_relative './en_passant.rb'
 require_relative './castle.rb'
 require_relative './board_check.rb'
+require_relative './human_player.rb'
+require_relative './computer_player.rb'
 
 class Chess
   include Euclid
   include BoardCheck
 
-  attr_accessor :player_white, :player_black, 
+  attr_accessor :single_player, :player_white, :player_black, 
     :board, :turn_white, :white_king_position, 
     :black_king_position, :num_moves, :en_passant, 
     :checks, :pins, :stalemate, :checkmate
 
   def initialize
+    @single_player = true
     @player_white = nil 
     @player_black = nil
     @board = get_starting_board 
@@ -35,10 +38,18 @@ class Chess
     @pins = []
   end
 
-  def play_new_game
-    self.player_white = get_player("white")
+  def game_setup
+    
+  end
 
-    self.player_black = get_player("black")
+  def play_new_game
+    if single_player
+      self.player_white = get_player("white")
+      self.player_black = ComputerPlayer.new
+    else
+      self.player_white = get_player("white")
+      self.player_black = get_player("black")
+    end
 
     display_turns
 
@@ -47,11 +58,6 @@ class Chess
     announce_result
   end
 
-  def get_player(color)
-    puts "Enter a name for person playing #{color}:"
-    name = gets.chomp
-    name
-  end
 
   def get_starting_board
     self.board = Array.new(8) { Array.new(8) } 
@@ -121,7 +127,7 @@ class Chess
       self.stalemate = stalemate?(nonspecial_moves, castles) 
     end
 
-    move = get_human_move(nonspecial_moves, castles)
+    move = get_move(nonspecial_moves, castles) 
 
     piece = get_piece(move[0])
  
@@ -139,8 +145,12 @@ class Chess
 
   end
 
-  def get_piece(pos)
-    board[pos[0]][pos[1]]
+  def get_move(nonspecial_moves, castles)
+    if single_player && !turn_white
+      ComputerPlayer.make_move(unspecial_moves, castles, en_passant)
+    else
+      get_human_move(nonspecial_moves, castles)
+    end
   end
 
   def get_human_move(nonspecial_moves, castles) 
@@ -241,7 +251,7 @@ class Chess
 
   def announce_result
     unless winner.nil?
-      puts "Congratulations, #{winner}!"
+      puts "Congratulations, #{winner.name}!"
     else 
       puts "It's a draw."
     end
@@ -695,5 +705,9 @@ class Chess
 
   def convert_row(char)
     8 - char.to_i
+  end
+
+  def get_piece(pos)
+    board[pos[0]][pos[1]]
   end
 end
