@@ -28,7 +28,7 @@ class Bishop
   end
 
   def moves(board, start_idx)
-    moves = { start_idx => [] }
+    moves = Hash.new { |h, k| h[k] = [] }
     offsets = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
     offsets.each do |o|
       m = start_idx[0] + o[0]
