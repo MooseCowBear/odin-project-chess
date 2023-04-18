@@ -504,7 +504,9 @@ class Chess
   def castle?(side)
     return false unless king_eligible(side[:king]) && rook_eligible(side[:rook])
 
-    safe_passage?(side[:king][0], side[:king][1], side[:king][1] + 2) && clear_passage?(side[:king][0], side[:king][1], side[:rook][1])
+    dir = side[:king][1] < side[:rook][1] ? 2 : -2
+
+    safe_passage?(side[:king][0], side[:king][1], side[:king][1] + dir) && clear_passage?(side[:king][0], side[:king][1], side[:rook][1])
   end
 
   def queen_side
