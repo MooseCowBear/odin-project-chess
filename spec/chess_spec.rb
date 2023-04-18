@@ -161,6 +161,31 @@ describe Chess do
         expect(res).to be false
       end
     end
+
+    context 'when the a square the king travels through is under attack' do
+      king = King.new
+      op_queen = Queen.new("black")
+      rook = Rook.new
+      let(:no_castle_board) { 
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, op_queen, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil], 
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [rook, nil, nil, nil, king, nil, nil, nil],
+        ]
+      }
+      
+      it 'returns false' do
+        test_chess.board = no_castle_board
+        k = test_chess.king_side
+        res = test_chess.castle?(k)
+        expect(res).to be false
+      end
+    end
   end
 
   describe '#noncastling_king_moves' do
