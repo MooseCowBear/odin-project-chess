@@ -11,15 +11,17 @@ require_relative './castle.rb'
 require_relative './board_check.rb'
 require_relative './human_player.rb'
 require_relative './computer_player.rb'
+require_relative './serialize.rb'
 
 class Chess
   include Euclid
   include BoardCheck
+  include Serialize
 
   attr_accessor :single_player, :player_white, :player_black, 
     :board, :turn_white, :white_king_position, 
     :black_king_position, :num_moves, :en_passant, 
-    :checks, :pins, :stalemate, :checkmate
+    :checks, :pins, :stalemate, :checkmate, :played_on
 
   def initialize
     @single_player = true
@@ -36,13 +38,51 @@ class Chess
     @winner = nil
     @checks = []
     @pins = []
+    @played_on = Time.now
   end
 
-  def game_setup
-    
+  def self.play
+    game = Chess.new
+    new_game = true
+    unfinished = unfinished_games
+
+    unless unfinished.empty?
+      loop do
+        puts "Would you like to load a saved game?"
+
+        load = gets.chomp.downcase
+        if load == 'y' || load == 'yes'
+          loop do 
+            puts "Enter the number of the game you would like to load."
+            display_game_choices(games)
+            choice = gets.chomp
+            if validate_choice(choice.to_i, games)
+              game = games[choice - 1]
+              new_game = false
+              break
+            end
+          end
+        elsif load == 'n' || load == 'no'
+          break
+        end
+      end
+    end
+    play_game(new_game)
   end
 
-  def play_new_game
+  def play_game(new_game)
+    get_players if new_game
+
+    display_turns
+
+    print_board("final")
+
+    announce_result
+
+    save_game(self) #if the game has been played to completion we want exclude it from unfinished games by updating its state
+  end
+
+  def get_players
     if single_player
       self.player_white = get_player("white")
       self.player_black = ComputerPlayer.new
@@ -50,12 +90,6 @@ class Chess
       self.player_white = get_player("white")
       self.player_black = get_player("black")
     end
-
-    display_turns
-
-    print_board("final")
-
-    announce_result
   end
 
 
@@ -141,9 +175,9 @@ class Chess
     
     self.num_moves += 1
 
-    #ask to save (eventually)
-
+    ask_to_save(self)
   end
+
 
   def get_move(nonspecial_moves, castles)
     if single_player && !turn_white
