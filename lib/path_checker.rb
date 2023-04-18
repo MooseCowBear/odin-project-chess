@@ -8,10 +8,10 @@ module PathChecker
   def clear_non_vertical_path?(own_color, board, start_idx, end_idx, slope)
     return false if board[end_idx[0]][end_idx[1]]&.color == own_color
 
-    start_idx, end_idx = order_non_vert(start_idx, end_idx)
+    first, second = order_non_vert(start_idx, end_idx)
 
-    y1, x1 = start_idx
-    y2, x2 = end_idx
+    y1, x1 = first
+    y2, x2 = second
 
     (x1 + 1).upto(x2 - 1) do |interm_x|
       interm_y = slope * (interm_x - x1) + y1 
@@ -23,10 +23,10 @@ module PathChecker
   def clear_vertical_path?(own_color, board, start_idx, end_idx, pawn = false)
     return false if board[end_idx[0]][end_idx[1]]&.color == own_color
 
-    start_idx, end_idx = order_vert(start_idx, end_idx)
+    first, second = order_vert(start_idx, end_idx)
 
-    y1, x1 = start_idx
-    y2, x2 = end_idx
+    y1, x1 = first
+    y2, x2 = second
 
     (y1 + 1).upto(y2 - 1) do |interm_y|
       return false unless board[interm_y][x1].nil?
