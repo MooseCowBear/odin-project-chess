@@ -45,12 +45,13 @@ class Pawn
   end
 
   def moves(board, start_idx)
-    moves = { start_idx => [] }
+    moves = Hash.new { |h, k| h[k] = [] }
     dir = color == "white" ? -1 : 1
     offsets = [ [dir, 0], [dir * 2, 0], [dir, 1], [dir, -1] ] 
     offsets.each do |o|
       m = start_idx[0] + o[0]
       n = start_idx[1] + o[1]
+      next unless on_board?([m, n])
       moves[start_idx] << [m, n] if valid_move?(board, start_idx, [m, n])
     end
     moves
@@ -77,7 +78,7 @@ class Pawn
   end
 
   def capturing?(board, end_idx)
-    board[end_idx[0]][end_idx[1]]&.color != self.color
+    !board[end_idx[0]][end_idx[1]].nil? && board[end_idx[0]][end_idx[1]].color != self.color
   end
 
   def correct_direction?(start_idx, end_idx)
