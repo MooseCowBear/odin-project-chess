@@ -18,9 +18,7 @@ module Serialize
     files = Dir["#{path}/*.txt"]
     games = []
     files.each do |f|
-      pp f
       reconstructed = Marshal.load(File.binread(f))
-      pp reconstructed
       games << reconstructed
     end
     games
@@ -28,17 +26,15 @@ module Serialize
 
   def unfinished_games
     games = load_games
+    
     games.select do |game| 
-      pp game.winner.nil?
-      pp game.num_moves < 75
-      pp game.stalemate == false
       game.winner.nil? && game.num_moves < 75 && game.stalemate == false
     end
   end
 
   def display_game_choices(games)
     games.each_with_index do |game, i|
-      puts "#{i + 1}: #{game.player_white.name} vs. #{game.player_black.name} #{game.played_on.strftime("%d/%m/%Y")}"
+      puts "#{i + 1}: #{game.player_white.name} vs. #{game.player_black.name} #{game.played_on.strftime("%d/%m/%Y %I:%M %p")}"
     end
   end
 
