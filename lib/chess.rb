@@ -100,9 +100,11 @@ class Chess
   def play_game(new_game)
     get_players if new_game
 
+    print_board("current")
+
     display_turns
 
-    print_board("final")
+    #print_board("final")
 
     announce_result
 
@@ -163,8 +165,6 @@ class Chess
   end
 
   def take_turn 
-    print_board("current")
-
     nonspecial_moves = nil 
 
     king = turn_white ? white_king_position : black_king_position
@@ -184,6 +184,9 @@ class Chess
     if checks.length > 0
       self.checkmate = checkmate?(nonspecial_moves) 
 
+      announce_check unless checkmate
+      announce_checkmate if checkmate
+
       record_winner if checkmate
     else
       self.stalemate = stalemate?(nonspecial_moves, castles) 
@@ -194,6 +197,8 @@ class Chess
     piece = get_piece(move[0])
  
     make_move(piece, move[0], move[1], castles)
+
+    annouce_move(move)
    
     update_en_passant(piece, move[0], move[1])
   
@@ -202,6 +207,8 @@ class Chess
     self.turn_white = !turn_white
     
     self.num_moves += 1
+
+    print_board("current")
 
     ask_to_save(self)
   end
@@ -326,6 +333,11 @@ class Chess
     else 
       puts "It's a draw."
     end
+  end
+
+  def annouce_move(move)
+    player = turn_white ? player_white : player_black
+    puts "#{player.name} moved #{revert_move(move[0])} to #{revert_move(move[1])}."
   end
 
   #methods for game state
@@ -532,21 +544,24 @@ class Chess
     #getting defender moves and pin moves involves
     #checking the "line" between the king and an opponent
     #this fuction grabs all the squares on that line
-
+    puts "in squares in range"
     squares = []
     slope = slope(king[1], king[0], opponent[1], opponent[0])
 
-    dir = king[1] < opponent[1] ? 1 : -1
     x = king[1] 
     y = king[0] 
 
     if slope.nil?
+      dir = king[0] < opponent[0] ? 1 : -1
       until y == opponent[0]
-        y += 1
+        puts "y is #{y}, should stop at #{opponent[0]}"
+        y += dir
         squares << [y, x]
       end
     else
+      dir = king[1] < opponent[1] ? 1 : -1
       until x == opponent[1]
+        puts "x is #{x}, should stop at #{opponent[1]}"
         x += dir
         y += slope * dir
         squares << [y.to_i, x.to_i]
@@ -729,6 +744,14 @@ class Chess
   #small helper functions
   private
 
+  def announce_check
+    puts "Check."
+  end
+
+  def announce_checkmate
+    puts "Checkmate."
+  end
+
   def update_king(piece, end_pt)
     if piece.is_a?(King)
       piece.moved = true
@@ -809,5 +832,11 @@ class Chess
 
   def get_piece(pos)
     board[pos[0]][pos[1]]
+  end
+
+  def revert_move(move)
+    letter = (move[1] + 97).chr
+    num = 8 - move[0]
+    "#{letter}#{num}"
   end
 end
