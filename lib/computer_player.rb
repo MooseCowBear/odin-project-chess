@@ -5,8 +5,8 @@ class ComputerPlayer
     @name = "Hal"
   end
 
-  def make_move(unspecial_moves, castles, en_passant)
-    moves = moves_to_arr(unspecial_moves, castles, en_passant)
+  def make_move(check, unspecial_moves, castles, en_passant)
+    moves = moves_to_arr(check, unspecial_moves, castles, en_passant)
     moves.sample
   end
 
