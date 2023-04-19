@@ -20,8 +20,8 @@ class Chess
 
   attr_accessor :single_player, :player_white, :player_black, 
     :board, :turn_white, :white_king_position, 
-    :black_king_position, :num_moves, :en_passant, 
-    :checks, :pins, :stalemate, :checkmate, :played_on, :winner
+    :black_king_position, :en_passant, :checks, :pins, :stalemate, 
+    :checkmate, :played_on, :winner
 
   def initialize
     @single_player = true
@@ -31,7 +31,6 @@ class Chess
     @turn_white = true
     @white_king_position = [7, 4]
     @black_king_position = [0, 4] 
-    @num_moves = 0
     @en_passant = [] 
     @stalemate = false
     @checkmate = false
@@ -159,7 +158,7 @@ class Chess
   end
 
   def display_turns
-    take_turn until checkmate || stalemate || num_moves >= 75 
+    take_turn until checkmate || stalemate
   end
 
   def take_turn 
@@ -203,8 +202,6 @@ class Chess
     promote_pawn(move[1])
     
     self.turn_white = !turn_white
-    
-    self.num_moves += 1
 
     print_board("current")
 
