@@ -738,7 +738,7 @@ class Chess
   def new_piece(choice)
     case choice
     when "queen"
-      return Queen.new(0, player_color)
+      return Queen.new(player_color)
 
     when "bishop"
       return Bishop.new(0, player_color)
