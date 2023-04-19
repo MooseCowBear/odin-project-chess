@@ -104,9 +104,9 @@ class Chess
 
     display_turns
 
-    #print_board("final")
-
     announce_result
+
+    print_board("final")
 
     save_game(self) #if the game has been played to completion we want exclude it from unfinished games by updating its state
   end
