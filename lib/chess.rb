@@ -84,10 +84,14 @@ class Chess
   def set_mode
     loop do
       puts "Would you like a single player game? y/n"
+
       input = gets.chomp.downcase
+
       return if input == 'y' || input == 'yes'
+
       if input == 'n' || input == 'no'
         self.single_player = false
+
         return 
       end
     end
@@ -108,9 +112,11 @@ class Chess
   def get_players
     if single_player
       self.player_white = HumanPlayer.get_player("white")
+
       self.player_black = ComputerPlayer.new
     else
       self.player_white = HumanPlayer.get_player("white")
+
       self.player_black = HumanPlayer.get_player("black")
     end
   end
@@ -252,9 +258,10 @@ class Chess
 
     self.board[end_pt[0]][end_pt[1]] = piece
 
-    #need to update king position if moved king + moved
     update_king(piece, end_pt)
+
     update_pawn(piece)
+
     update_rook(piece)
 
     if in_castles?(start_pt, end_pt, castles)
@@ -427,8 +434,8 @@ class Chess
 
   def non_check_moves
     #moves when not in check include king,
-    #pin moves,
-    #nonpin moves (castling and en passant moves are determined elsewhere)
+    #pin moves, nonpin moves 
+    #(castling and en passant moves are determined elsewhere)
 
     moves = noncastling_king_moves
 
@@ -446,21 +453,24 @@ class Chess
 
     king_moves = Hash.new { |h, k| h[k] = [] }
 
-    get_test_board(king_pos[0], king_pos[1]) #remove the king from his curr pos
+    get_test_board(king_pos[0], king_pos[1]) #don't want a check to be blocked bc of king
 
     adj = king.get_adjacent_positions(king_pos)
     
     adj.each do |pos|
-      p = board[pos[0]][pos[1]] #get whatever was on the square
-      board[pos[0]][pos[1]] = king #put the king there instead
+      orig_piece = board[pos[0]][pos[1]] 
 
-      m = get_checks_and_pins(pos, player_color, opponent_color, false) #is the king be under check
+      next if orig_piece&.color == player_color #if its a teammate, skip. can't move there
 
-      king_moves[king_pos] << pos if m.empty? && p&.color != player_color 
+      board[pos[0]][pos[1]] = king 
 
-      board[pos[0]][pos[1]] = p #put the orig piece back
+      m = get_checks_and_pins(pos, player_color, opponent_color, false) 
+
+      king_moves[king_pos] << pos if m.empty? 
+
+      board[pos[0]][pos[1]] = orig_piece 
     end
-    revert_board(king, king_pos[0], king_pos[1]) #put the king it back
+    revert_board(king, king_pos[0], king_pos[1]) 
 
     king_moves
   end
