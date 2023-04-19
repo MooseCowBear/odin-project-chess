@@ -233,6 +233,32 @@ describe Chess do
         expect(to_check).to match_array([[1, 1], [1, 2], [1, 3], [3, 1], [3, 2], [3, 3]])
       end
     end
+
+    wK = King.new
+    wB = Bishop.new
+
+    let(:blocked_board) {
+      [
+        [wK, wB, nil, nil, nil, nil, nil, nil],
+        [wB, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil], 
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+      ]
+    }
+
+    context 'when the king is blocked from moving by teammates' do
+      it 'excludes those blocked moves from possible moves' do
+        test_chess.board = blocked_board
+        test_chess.white_king_position = [0, 0]
+        res = test_chess.noncastling_king_moves
+        to_check = res[[0, 0]]
+        expect(to_check).to match_array([[1, 1]])
+      end
+    end
   end
 
   describe '#squares_in_range' do
