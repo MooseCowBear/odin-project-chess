@@ -91,7 +91,6 @@ class Chess
 
       if input == 'n' || input == 'no'
         self.single_player = false
-
         return 
       end
     end
@@ -313,6 +312,7 @@ class Chess
     row_label = 8
     8.times do |row_idx|
       line = "#{row_label} |"
+
       board[row_idx].each do |elem|
         if elem.nil?
           line += " #{elem.to_s}  |"
@@ -321,7 +321,9 @@ class Chess
         end
       end
       puts line
+
       puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
+
       row_label -= 1
     end
     puts ""
@@ -337,6 +339,7 @@ class Chess
 
   def annouce_move(move)
     player = turn_white ? player_white : player_black
+
     puts "#{player.name} moved #{revert_move(move[0])} to #{revert_move(move[1])}."
   end
 
@@ -374,7 +377,7 @@ class Chess
       possible_pin = nil
 
       while on_board?(square)
-        piece = board[square[0]][square[1]]
+        piece = get_piece(square)
 
         if piece&.color == p_color && possible_pin.nil?
           if want_pins
@@ -400,7 +403,9 @@ class Chess
             get_test_board(m, n)
 
             attacking = mechanically_correct(piece, square, king) 
+
             possible_pin.update_defense(square) if attacking
+
             moves["pins_arr"] << possible_pin if attacking 
 
             revert_board(possible_pin.identity, m, n) 
@@ -420,7 +425,7 @@ class Chess
       col = king[1] + p[1]
 
       if on_board?([row, col])
-        piece = board[row][col]
+        piece = get_piece([row, col])
         moves["checks_arr"] << [piece, [row, col], king] if piece.is_a?(Knight) && piece.color == o_color 
       end
     end
@@ -461,7 +466,7 @@ class Chess
 
     king_pos = curr_king
 
-    king = board[king_pos[0]][king_pos[1]]
+    king = get_piece(king_pos)
 
     king_moves = Hash.new { |h, k| h[k] = [] }
 
@@ -470,7 +475,7 @@ class Chess
     adj = king.get_adjacent_positions(king_pos)
     
     adj.each do |pos|
-      orig_piece = board[pos[0]][pos[1]] 
+      orig_piece = get_piece(pos)
 
       next if orig_piece&.color == player_color #if its a teammate, skip. can't move there
 
@@ -544,8 +549,8 @@ class Chess
     #getting defender moves and pin moves involves
     #checking the "line" between the king and an opponent
     #this fuction grabs all the squares on that line
-    puts "in squares in range"
     squares = []
+
     slope = slope(king[1], king[0], opponent[1], opponent[0])
 
     x = king[1] 
@@ -553,17 +558,20 @@ class Chess
 
     if slope.nil?
       dir = king[0] < opponent[0] ? 1 : -1
+
       until y == opponent[0]
-        puts "y is #{y}, should stop at #{opponent[0]}"
         y += dir
+
         squares << [y, x]
       end
     else
       dir = king[1] < opponent[1] ? 1 : -1
+
       until x == opponent[1]
-        puts "x is #{x}, should stop at #{opponent[1]}"
         x += dir
+
         y += slope * dir
+
         squares << [y.to_i, x.to_i]
       end
     end
@@ -643,6 +651,7 @@ class Chess
 
     min.upto(max) do |col| 
       checked = get_checks_and_pins([row, col], player_color, opponent_color, false) 
+
       return false unless checked["checks_arr"].empty? 
     end
     true
@@ -666,9 +675,11 @@ class Chess
     return unless piece.is_a?(Pawn) && distance(start_pt[1], start_pt[0], end_pt[1], end_pt[0]) == 2.0 
 
     left = left_neighbor(end_pt)
+
     right = right_neighbor(end_pt)
 
     self.en_passant << left unless left.nil? 
+
     self.en_passant << right unless right.nil?
   end
 
@@ -755,6 +766,7 @@ class Chess
   def update_king(piece, end_pt)
     if piece.is_a?(King)
       piece.moved = true
+
       if turn_white
         self.white_king_position = end_pt
       else
@@ -836,7 +848,9 @@ class Chess
 
   def revert_move(move)
     letter = (move[1] + 97).chr
+
     num = 8 - move[0]
+    
     "#{letter}#{num}"
   end
 end
