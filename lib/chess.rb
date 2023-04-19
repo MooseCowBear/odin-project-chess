@@ -21,7 +21,7 @@ class Chess
   attr_accessor :single_player, :player_white, :player_black, 
     :board, :turn_white, :white_king_position, 
     :black_king_position, :num_moves, :en_passant, 
-    :checks, :pins, :stalemate, :checkmate, :played_on
+    :checks, :pins, :stalemate, :checkmate, :played_on, :winner
 
   def initialize
     @single_player = true
@@ -44,10 +44,11 @@ class Chess
   def self.play
     game = Chess.new
     new_game = true
-    unfinished = unfinished_games
+    unfinished = game.unfinished_games
 
     unless unfinished.empty?
       loop do
+        answered = false
         puts "Would you like to load a saved game?"
 
         load = gets.chomp.downcase
@@ -56,22 +57,40 @@ class Chess
           loop do 
             puts "Enter the number of the game you would like to load."
 
-            display_game_choices(games)
+            game.display_game_choices(unfinished)
 
-            choice = gets.chomp
+            choice = gets.chomp.to_i
 
-            if validate_choice(choice.to_i, games)
-              game = games[choice - 1]
+            if game.validate_choice(choice, unfinished)
+              game = unfinished[choice - 1]
               new_game = false
+              answered = true
               break
             end
           end
         elsif load == 'n' || load == 'no'
+          answered = true
           break
         end
+        break if answered
       end
     end
-    play_game(new_game)
+    #if new game: need to ask if one of two players
+    game.set_mode if new_game
+    
+    game.play_game(new_game)
+  end
+
+  def set_mode
+    loop do
+      puts "Would you like a single player game? y/n"
+      input = gets.chomp.downcase
+      return if input == 'y' || input == 'yes'
+      if input == 'n' || input == 'no'
+        self.single_player = false
+        return 
+      end
+    end
   end
 
   def play_game(new_game)
@@ -88,11 +107,11 @@ class Chess
 
   def get_players
     if single_player
-      self.player_white = get_player("white")
+      self.player_white = HumanPlayer.get_player("white")
       self.player_black = ComputerPlayer.new
     else
-      self.player_white = get_player("white")
-      self.player_black = get_player("black")
+      self.player_white = HumanPlayer.get_player("white")
+      self.player_black = HumanPlayer.get_player("black")
     end
   end
 
@@ -168,11 +187,11 @@ class Chess
 
     piece = get_piece(move[0])
  
-    make_move(piece, start_pt, end_pt, castles)
+    make_move(piece, move[0], move[1], castles)
    
-    update_en_passant(piece, start_pt, end_pt)
+    update_en_passant(piece, move[0], move[1])
   
-    promote_pawn(end_pt)
+    promote_pawn(move[1])
     
     self.turn_white = !turn_white
     
@@ -181,10 +200,10 @@ class Chess
     ask_to_save(self)
   end
 
-
   def get_move(nonspecial_moves, castles)
     if single_player && !turn_white
-      ComputerPlayer.make_move(unspecial_moves, castles, en_passant)
+      c = checks.length > 0
+      player_black.make_move(c, nonspecial_moves, castles, en_passant)
     else
       get_human_move(nonspecial_moves, castles)
     end
@@ -193,9 +212,7 @@ class Chess
   def get_human_move(nonspecial_moves, castles) 
     player = turn_white ? player_white : player_black
 
-    puts "Enter a move for #{player}." 
-
-    puts "Moves should be of the form a1b2."
+    puts "Enter a move for #{player.name}." 
 
     loop do
       move = gets.chomp
@@ -212,6 +229,8 @@ class Chess
   def issue_move_warning
     puts "All moves must be legal."
 
+    puts "Moves should be of the form a1b2."
+
     puts "Enter a legal move:"
   end
 
@@ -219,9 +238,12 @@ class Chess
     start_pt, end_pt = move
     
     if checks.length > 0
-      in_non_special_move?(start_pt, end_pt) || in_enpassant?(start_pt, end_pt)
+      in_non_special_move?(start_pt, end_pt, nonspecial_moves) || 
+      in_enpassant?(start_pt, end_pt)
     else
-      in_non_special_move?(start_pt, end_pt) || in_enpassant?(start_pt, end_pt) || in_castles?(start_pt, end_pt)
+      in_non_special_move?(start_pt, end_pt, nonspecial_moves) || 
+      in_enpassant?(start_pt, end_pt) || 
+      in_castles?(start_pt, end_pt, castles)
     end
   end
 
@@ -230,7 +252,12 @@ class Chess
 
     self.board[end_pt[0]][end_pt[1]] = piece
 
-    if in_castles?(start_pt, end_pt)
+    #need to update king position if moved king + moved
+    update_king(piece, end_pt)
+    update_pawn(piece)
+    update_rook(piece)
+
+    if in_castles?(start_pt, end_pt, castles)
       c = castles.select { |elem| elem.king_start == start_pt && elem.king_end == end_pt }
 
       rook_s = c.rook_start
@@ -340,13 +367,14 @@ class Chess
           break
         elsif piece&.color == o_color
           if possible_pin.nil?
+
             attacking = mechanically_correct(piece, square, king) 
 
             moves["checks_arr"] << [piece, square, king] if attacking
             break 
           else 
-            #now checking whether possible pin is actual
-            #by removing it, and testing whether the opponent piece we hit can attack
+            #now checking whether possible pin is actualby removing it, 
+            #and testing whether the opponent piece we hit can attack
             m = possible_pin.position[0]
             n = possible_pin.position[1]
 
@@ -415,21 +443,25 @@ class Chess
     king_pos = curr_king
 
     king = board[king_pos[0]][king_pos[1]]
-    p_color = player_color
-    o_color = opponent_color
 
     king_moves = Hash.new { |h, k| h[k] = [] }
 
-    adj = king.get_adjacent_positions(king_pos)
+    get_test_board(king_pos[0], king_pos[1]) #remove the king from his curr pos
 
-    get_test_board(king_pos[0], king_pos[1])
+    adj = king.get_adjacent_positions(king_pos)
     
     adj.each do |pos|
-      m = get_checks_and_pins(pos, p_color, o_color, false)
+      p = board[pos[0]][pos[1]] #get whatever was on the square
+      board[pos[0]][pos[1]] = king #put the king there instead
 
-      king_moves[king_pos] << pos if m.empty? 
+      m = get_checks_and_pins(pos, player_color, opponent_color, false) #is the king be under check
+
+      king_moves[king_pos] << pos if m.empty? && p&.color != player_color 
+
+      board[pos[0]][pos[1]] = p #put the orig piece back
     end
-    revert_board(king, king_pos[0], king_pos[1])
+    revert_board(king, king_pos[0], king_pos[1]) #put the king it back
+
     king_moves
   end
 
@@ -687,7 +719,26 @@ class Chess
   #small helper functions
   private
 
-  def in_non_special_move?(start_pt, end_pt)
+  def update_king(piece, end_pt)
+    if piece.is_a?(King)
+      piece.moved = true
+      if turn_white
+        self.white_king_position = end_pt
+      else
+        self.black_king_position = end_pt
+      end
+    end
+  end
+
+  def update_pawn(piece)
+    piece.moved = true if piece.is_a?(Pawn)
+  end
+
+  def update_rook(piece)
+    piece.moved = true if piece.is_a?(Rook)
+  end
+
+  def in_non_special_move?(start_pt, end_pt, nonspecial_moves)
     nonspecial_moves.has_key?(start_pt) && nonspecial_moves[start_pt].include?(end_pt)
   end
 
@@ -699,7 +750,7 @@ class Chess
     end
   end
 
-  def in_castles?(start_pt, end_pt)
+  def in_castles?(start_pt, end_pt, castles)
     castles.any? { |elem| elem.king_start == start_pt && elem.king_end == end_pt }
   end
 
