@@ -3,13 +3,15 @@ require_relative '../lib/bishop.rb'
 describe Bishop do
   describe '#valid_move?' do
     subject(:test_bishop) { described_class.new }
+    let(:opponent) { double(color: "black") }
+    let(:teammate) { double(color: "white") }
     let(:board) { 
       [
         [nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil],
-        ["x", nil, "B", "x", nil, nil],
-        [nil, nil, "x", nil, nil, nil],
-        [nil, nil, nil, nil, "x", nil],
+        [nil, nil, nil, teammate, nil, nil],
+        [nil, nil, "B", nil, nil, nil],
+        [nil, opponent, nil, nil, nil, nil],
+        [nil, nil, nil, nil, opponent, nil],
         [nil, nil, nil, nil, nil, nil]
       ]
     }
@@ -35,7 +37,7 @@ describe Bishop do
     context 'when trying to move not on a diagonal' do
       it 'returns false if there is no obstacle' do
         start_pt = [2, 2]
-        end_pt = [3, 0]
+        end_pt = [4, 1]
         res = test_bishop.valid_move?(board, start_pt, end_pt)
         expect(res).to be false
       end
@@ -43,6 +45,15 @@ describe Bishop do
       it 'returns false if there is an obstacle' do
         start_pt = [2, 2]
         end_pt = [0, 5]
+        res = test_bishop.valid_move?(board, start_pt, end_pt)
+        expect(res).to be false
+      end
+    end
+
+    context 'when teammate is blocking path' do
+      it 'returns false' do
+        start_pt = [2, 2]
+        end_pt = [1, 3]
         res = test_bishop.valid_move?(board, start_pt, end_pt)
         expect(res).to be false
       end
