@@ -5,7 +5,7 @@ class HumanPlayer
     @name = name
   end
 
-  def get_player(color)
+  def self.get_player(color)
     puts "Enter a name for person playing #{color}:"
     name = gets.chomp
     HumanPlayer.new(name)
