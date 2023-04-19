@@ -28,7 +28,7 @@ class King
     y1, x1 = start_idx
     y2, x2 = end_idx
     dist = distance(x1, y1, x2, y2)
-    distances.include?(dist)
+    distances.include?(dist) && board[end_idx[0]][end_idx[1]]&.color != color
   end
 
   def get_adjacent_positions(position)
