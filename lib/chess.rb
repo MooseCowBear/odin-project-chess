@@ -75,7 +75,6 @@ class Chess
         break if answered
       end
     end
-    #if new game: need to ask if one of two players
     game.set_mode if new_game
     
     game.play_game(new_game)
@@ -395,7 +394,7 @@ class Chess
             moves["checks_arr"] << [piece, square, king] if attacking
             break 
           else 
-            #now checking whether possible pin is actualby removing it, 
+            #now checking whether possible pin is actually removing it, 
             #and testing whether the opponent piece we hit can attack
             m = possible_pin.position[0]
             n = possible_pin.position[1]
@@ -850,7 +849,7 @@ class Chess
     letter = (move[1] + 97).chr
 
     num = 8 - move[0]
-    
+
     "#{letter}#{num}"
   end
 end
