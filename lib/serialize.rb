@@ -1,5 +1,3 @@
-require 'fileutils'
-
 module Serialize
 
   def save_game(game)
@@ -26,7 +24,7 @@ module Serialize
 
   def unfinished_games
     games = load_games
-    
+
     games.select do |game| 
       game.winner.nil? && game.num_moves < 75 && game.stalemate == false
     end
