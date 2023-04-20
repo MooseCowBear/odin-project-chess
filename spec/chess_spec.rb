@@ -259,6 +259,46 @@ describe Chess do
         expect(to_check).to match_array([[1, 1]])
       end
     end
+
+    context 'when the king is in check and there are no pins' do
+      bKi = King.new("black")
+      bR = Rook.new(0, "black")
+      bK = Knight.new(0, "black")
+      bB = Bishop.new(0, "black")
+      bP = Pawn.new(0, "black")
+
+      wP = Pawn.new
+      wB = Bishop.new
+      wKi = Knight.new
+      wR = Rook.new
+      wQ = Queen.new
+      wK = King.new
+
+      let(:check_board) { 
+        [
+          [bR, bK, nil, bKi, nil, bB, nil, nil],
+          [nil, nil, nil, bP, wP, wB, nil, nil], 
+          [nil, bP, nil, nil, nil, nil, bP, nil], 
+          [bP, nil, bP, nil, nil, nil, wP, bP],
+          [wP, nil, nil, nil, wP, nil, nil, wP], 
+          [wK, nil, nil, nil, nil, nil, nil, nil],
+          [nil, wP, nil, nil, nil, nil, nil, wR],
+          [wR, nil, wB, wQ, wKi, nil, wK, nil],
+        ]
+      }
+
+      it 'returns the only move the king can make' do
+        test_chess.turn_white = false
+        test_chess.board = check_board
+        test_chess.black_king_position = [0, 3]
+        test_chess.checks = [[wP, [1, 4], [0, 3]]] 
+
+        res = test_chess.noncastling_king_moves
+        pp res
+        expected = { [0, 3] => [[1, 4], [0, 2], [1, 2]] }
+        expect(res).to match_hash(expected)
+      end
+    end
   end
 
   describe '#squares_in_range' do
@@ -317,6 +357,46 @@ describe Chess do
           [4, 0] => [[4, 2]],
           [6, 3] => [[4, 2], [5, 1]]
         )
+      end
+    end
+
+    context 'when the king is in check and there are no defender moves' do
+      bKi = King.new("black")
+      bR = Rook.new(0, "black")
+      bK = Knight.new(0, "black")
+      bB = Bishop.new(0, "black")
+      bP = Pawn.new(0, "black")
+
+      wP = Pawn.new
+      wB = Bishop.new
+      wKi = Knight.new
+      wR = Rook.new
+      wQ = Queen.new
+      wK = King.new
+
+      let(:check_board) { 
+        [
+          [bR, bK, nil, bKi, nil, bB, nil, nil],
+          [nil, nil, nil, bP, wP, wB, nil, nil], 
+          [nil, bP, nil, nil, nil, nil, bP, nil], 
+          [bP, nil, bP, nil, nil, nil, wP, bP],
+          [wP, nil, nil, nil, wP, nil, nil, wP], 
+          [wK, nil, nil, nil, nil, nil, nil, nil],
+          [nil, wP, nil, nil, nil, nil, nil, wR],
+          [wR, nil, wB, wQ, wKi, nil, wK, nil],
+        ]
+      }
+
+      it 'returns empty hash' do
+        test_chess.turn_white = false
+        test_chess.board = check_board
+        test_chess.black_king_position = [0, 3]
+        test_chess.checks = [[wP, [1, 4], [0, 3]]] 
+
+        res = test_chess.defender_moves([0, 3], [1, 4])
+        pp res
+        expected = { [0, 5] => [[1, 4]] }
+        expect(res).to match_hash(expected)
       end
     end
   end
