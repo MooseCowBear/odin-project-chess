@@ -170,13 +170,19 @@ class Chess
     if checks.length > 0
       self.checkmate = checkmate?(nonspecial_moves) 
 
-      announce_check unless checkmate
+      if checkmate
+        announce_checkmate
+        record_winner
+        return
+      end
 
-      announce_checkmate if checkmate
+      announce_check
+    end
 
-      record_winner if checkmate
-    else
-      self.stalemate = stalemate?(nonspecial_moves, castles) 
+    if stalemate?(nonspecial_moves, castles)
+      self.stalemate = true
+      annouce_stalemate
+      return 
     end
 
     move = get_move(nonspecial_moves, castles) 
@@ -744,6 +750,10 @@ class Chess
 
   def announce_checkmate
     puts "Checkmate."
+  end
+
+  def annouce_stalemate
+    puts "Stalemate."
   end
 
   def update_king(piece, end_pt)
