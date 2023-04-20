@@ -431,8 +431,6 @@ class Chess
       king = turn_white ? white_king_position : black_king_position
 
       moves = moves.merge(defender_moves(king, checks[0][1]))
-
-      moves = moves.merge(pin_moves)
     end
     moves
   end
