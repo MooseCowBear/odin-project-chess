@@ -1,4 +1,4 @@
-require_relative '../lib/bishop.rb'
+require_relative '../lib/pieces/bishop.rb'
 
 describe Bishop do
   describe '#valid_move?' do

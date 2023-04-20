@@ -1,4 +1,4 @@
-require_relative '../lib/rook.rb'
+require_relative '../lib/pieces/rook.rb'
 
 describe Rook do
   describe '#valid_move?' do

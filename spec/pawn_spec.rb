@@ -1,4 +1,4 @@
-require_relative '../lib/pawn.rb'
+require_relative '../lib/pieces/pawn.rb'
 
 describe Pawn do
   describe '#valid_move?' do

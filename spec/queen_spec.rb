@@ -1,4 +1,4 @@
-require_relative '../lib/queen.rb'
+require_relative '../lib/pieces/queen.rb'
 
 describe Queen do
   describe '#valid_move?' do
