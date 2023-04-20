@@ -33,9 +33,12 @@ class Knight
   def moves(board, start_idx)
     moves = Hash.new { |h, k| h[k] = [] }
     offsets = [ [1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, -1] ]
+
     offsets.each do |o|
       m = start_idx[0] + o[0]
+
       n = start_idx[1] + o[1]
+      
       moves[start_idx] << [m, n] if on_board?([m, n]) && valid_move?(board, start_idx, [m, n]) #need to make sure not landing on a teammate
     end
     moves

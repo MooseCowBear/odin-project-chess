@@ -7,6 +7,7 @@ class ComputerPlayer
 
   def make_move(check, unspecial_moves, castles, en_passant)
     moves = moves_to_arr(check, unspecial_moves, castles, en_passant)
+    
     moves.sample
   end
 

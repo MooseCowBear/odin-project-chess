@@ -2,12 +2,15 @@ module Serialize
 
   def save_game(game)
     filename = make_filename(game)
+
     Dir.mkdir 'saves' unless Dir.exist? 'saves'
+
     File.open('saves/' + filename, 'w+') { |f| f.write(Marshal.dump(game)) } 
   end
   
   def make_filename(game)
     name = game.played_on.strftime("%d_%m_%Y_%I_%M_%p")
+    
     name + '.txt'
   end
   
@@ -15,8 +18,10 @@ module Serialize
     path =  File.expand_path('../saves', __dir__)
     files = Dir["#{path}/*.txt"]
     games = []
+
     files.each do |f|
       reconstructed = Marshal.load(File.binread(f))
+
       games << reconstructed
     end
     games
@@ -42,7 +47,9 @@ module Serialize
 
   def ask_to_save(game)
     puts "Would you like to save? y/n"
+
     input = gets.chomp.downcase
+
     if input == 'y' || input == 'yes'
       save_game(game)
     end

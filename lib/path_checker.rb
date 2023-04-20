@@ -15,6 +15,7 @@ module PathChecker
 
     (x1 + 1).upto(x2 - 1) do |interm_x|
       interm_y = slope * (interm_x - x1) + y1 
+      
       return false unless board[interm_y][interm_x].nil? 
     end
     true
@@ -41,12 +42,14 @@ module PathChecker
   def order_non_vert(start_idx, end_idx)
     #x1 needs to be smaller than x2 for nonvert
     return [end_idx, start_idx] if end_idx[1] < start_idx[1]
+
     [start_idx, end_idx]
   end
 
   def order_vert(start_idx, end_idx)
     #y1 needs to be smaller than y2
     return [end_idx, start_idx] if end_idx[0] < start_idx[0]
+
     [start_idx, end_idx]
   end
 end
