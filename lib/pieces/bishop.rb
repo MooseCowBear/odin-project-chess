@@ -1,32 +1,37 @@
-require_relative './euclid.rb'
-require_relative './path_checker.rb'
-require_relative './board_check.rb'
+require_relative '../euclid.rb'
+require_relative '../path_checker.rb'
+require_relative '../board_check.rb'
 
 require 'set'
 
-class Queen
+class Bishop
   include Euclid
-  include PathChecker 
+  include PathChecker
   include BoardCheck
 
-  attr_reader :slopes, :color
+  attr_reader :slopes, :color, :num
 
-  def initialize(color = "white")
-    @slopes = Set.new([nil, 1.0, 0.0, -1.0]) 
+  def initialize(num = 1, color = "white")
+    @slopes = Set.new([1.0, -1.0])
     @color = color
+    @num = num
   end
 
   def to_s 
-    color == "white" ? "\u{2655}" : "\u{265B}"
+    color == "white" ? "\u{2657}" : "\u{265D}"
   end
 
   def get_start_position
-    color == "black" ? [0, 3] : [7, 3]
+    if num == 1
+      color == "black" ? [0, 2] : [7, 2]
+    else
+      color == "black" ? [0, 5] : [7, 5]
+    end
   end
 
   def moves(board, start_idx)
     moves = Hash.new { |h, k| h[k] = [] }
-    offsets = [ [0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1] ]
+    offsets = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
 
     offsets.each do |o|
       m = start_idx[0] + o[0]
@@ -48,12 +53,9 @@ class Queen
     moves
   end
 
-
   def valid_move?(board, start_idx, end_idx)
     slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-
-    path_clear = slope.nil? ? clear_vertical_path?(color, board, start_idx, end_idx) : clear_non_vertical_path?(color, board, start_idx, end_idx, slope)
-
-    slopes.include?(slope) && path_clear
+    
+    slopes.include?(slope) && clear_non_vertical_path?(color, board, start_idx, end_idx, slope)
   end
 end

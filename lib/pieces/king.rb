@@ -1,11 +1,13 @@
-require_relative './euclid.rb'
-require_relative './path_checker.rb'
+require_relative '../euclid.rb'
+require_relative '../path_checker.rb'
+require_relative '../board_check.rb'
 
 require 'set'
 
 class King
   include Euclid
   include PathChecker
+  include BoardCheck
 
   attr_reader :distances, :color
   attr_accessor :moved
@@ -37,7 +39,7 @@ class King
     (y - 1).upto(y + 1) do |i|
       (x - 1).upto(x + 1) do |j|
         if [i, j] != position
-          adjacent << [i, j] if i.between?(0, 7) && j.between?(0, 7)
+          adjacent << [i, j] if on_board?([i, j])
         end
       end
     end
