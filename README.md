@@ -28,3 +28,6 @@ In the case of defensive moves, these are the lines of attack from the opponent 
 
 In the case of non-pins, these are the lines from the piece that are consistent with the rules of its movement (eg. diagonal in the case of bishops, orthogonal in the case of rooks, etc.)
 
+## Play Online
+
+Play on [repl.it](https://replit.com/@moosecow/Chess?v=1)
