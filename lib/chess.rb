@@ -9,8 +9,8 @@ require_relative './pin.rb'
 require_relative './en_passant.rb'
 require_relative './castle.rb'
 require_relative './board_check.rb'
-require_relative './human_player.rb'
-require_relative './computer_player.rb'
+require_relative './players/human_player.rb'
+require_relative './players/computer_player.rb'
 require_relative './serialize.rb'
 
 class Chess
