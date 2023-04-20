@@ -11,10 +11,9 @@ In an attempt to avoid generating all possible moves and then eliminating the on
 - Moves from check include: 
   1. moves the king can make to an adjacent square that is not itself under attack, 
   2. defensive moves, where a non-king piece may either capture the opponent's checking piece or hold it back by interrupting the line of attack
-  3. moves of pinned pieces that allow them to remain pins.
 
   Only king moves are relevant in the case of multiple check. 
-  Otherwise all threes types are.
+  Otherwise both types are.
 
 - Moves in the absence of check include:
   1. moves the king can make (same as above),
