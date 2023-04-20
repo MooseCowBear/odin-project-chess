@@ -126,33 +126,18 @@ class Chess
     players = ["white", "black"]
 
     players.each do |player| 
-      king = King.new(player)
-      m, n = king.get_start_position
-      self.board[m][n] = king
 
-      queen = Queen.new(player)
-      m, n = queen.get_start_position
-      self.board[m][n] = queen
+      place(King.new(player))
+
+      place(Queen.new(player))
 
       1.upto(2) do |i|
-        rook = Rook.new(i, player)
-        m, n = rook.get_start_position
-        self.board[m][n] = rook
+        place(Rook.new(i, player))
 
-        bishop = Bishop.new(i, player)
-        m, n = bishop.get_start_position
-        self.board[m][n] = bishop
+        place(Bishop.new(i, player))
 
-        knight = Knight.new(i, player)
-        m, n = knight.get_start_position
-        self.board[m][n] = knight
-      end
-
-      1.upto(8) do |i|
-        pawn = Pawn.new(i, player)
-        m, n = pawn.get_start_position
-        self.board[m][n] = pawn
-      end
+        place(Knight.new(i, player))
+      end    
     end 
     board
   end
@@ -182,6 +167,7 @@ class Chess
       self.checkmate = checkmate?(nonspecial_moves) 
 
       announce_check unless checkmate
+
       announce_checkmate if checkmate
 
       record_winner if checkmate
@@ -302,7 +288,9 @@ class Chess
 
   def print_board(state)
     puts "\nThe #{state} board is: \n" 
+    
     puts "    a   b   c   d   e   f   g   h  "
+    
     puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
   
     row_label = 8
@@ -317,9 +305,9 @@ class Chess
         end
       end
       puts line
-
+      
       puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
-
+      
       row_label -= 1
     end
     puts ""
@@ -417,12 +405,12 @@ class Chess
 
     knight_positions.each do |p|
       #nothing can be a pin for a knight, so just check for check
-      row = king[0] + p[0]
-      col = king[1] + p[1]
+      square = [king[0] + p[0], king[1] + p[1]]
 
-      if on_board?([row, col])
-        piece = get_piece([row, col])
-        moves["checks_arr"] << [piece, [row, col], king] if piece.is_a?(Knight) && piece.color == o_color 
+      if on_board?(square)
+        piece = get_piece(square)
+        
+        moves["checks_arr"] << [piece, square, king] if piece.is_a?(Knight) && piece.color == o_color 
       end
     end
     moves
@@ -736,13 +724,10 @@ class Chess
     case choice
     when "queen"
       return Queen.new(player_color)
-
     when "bishop"
       return Bishop.new(0, player_color)
-
     when "rook"
       return Rook.new(0, player_color)
-
     when "knight"
       return Knight.new(0, player_color)
     end
@@ -848,5 +833,10 @@ class Chess
     num = 8 - move[0]
 
     "#{letter}#{num}"
+  end
+
+  def place(piece)
+    m, n = piece.get_start_position
+    self.board[m][n] = piece
   end
 end
