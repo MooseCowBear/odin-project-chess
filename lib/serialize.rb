@@ -10,7 +10,7 @@ module Serialize
   
   def make_filename(game)
     name = game.played_on.strftime("%d_%m_%Y_%I_%M_%p")
-    
+
     name + '.txt'
   end
   
@@ -31,7 +31,7 @@ module Serialize
     games = load_games
 
     games.select do |game| 
-      game.winner.nil? && game.num_moves < 75 && game.stalemate == false
+      game.winner.nil? && game.stalemate == false
     end
   end
 
