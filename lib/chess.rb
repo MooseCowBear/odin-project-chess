@@ -137,7 +137,11 @@ class Chess
         place(Bishop.new(i, player))
 
         place(Knight.new(i, player))
-      end    
+      end
+
+      1.upto(8) do |i|
+        place(Pawn.new(i, player))
+      end 
     end 
     board
   end
