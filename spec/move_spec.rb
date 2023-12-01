@@ -35,14 +35,16 @@ describe Move do
 
     it "calls board update twice" do
       allow(test_piece).to receive(:position=)
+      allow(test_piece).to receive(:moved=)
       expect(board).to receive(:update).with({:position=>[6, 0], :value=>nil})
       expect(board).to receive(:update).with({:position=>[7, 0], :value=>test_piece})
       test_move.execute(board)
     end
 
-    it "calls piece position setter" do
+    it "calls piece setters" do
       allow(board).to receive(:update)
       expect(test_piece).to receive(:position=).with([7,0])
+      expect(test_piece).to receive(:moved=).with(true)
       test_move.execute(board)
     end
   end
