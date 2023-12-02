@@ -48,4 +48,29 @@ describe Piece do
       expect(white_piece.last_row).to eq(0)
     end
   end
+
+  describe "methods that should be implemented by subclasses" do 
+    subject(:test_piece) { described_class.new(color: "white", position: [0, 0]) }
+
+    describe "#to_s" do
+      it "raises exception" do
+        msg = "This method needs to be defined in the subclass"
+        expect { test_piece.to_s }.to raise_error(msg)
+      end
+    end
+
+    describe "#valid_move?" do
+      it "raises exception" do
+        msg = "This method needs to be defined in the subclass"
+        expect { test_piece.valid_move?(to: [0, 0], from: [1, 1]) }.to raise_error(msg)
+      end
+    end
+
+    describe "#valid_moves" do
+      it "raises exception" do
+        msg = "This method needs to be defined in the subclass"
+        expect { test_piece.valid_moves(from: [0, 0], board: nil) }.to raise_error(msg)
+      end
+    end
+  end
 end
