@@ -4,7 +4,7 @@ class Piece
   attr_reader :color, :promotable
   attr_accessor :moved, :position
 
-  def initialize(color:, position:, promotable: false)
+  def initialize(color:, position:, promotable:)
     @color = color
     @moved = false # need to pawn, king, castle. don't care otherwise really.
     @promotable = promotable # pawn needs to make this true
@@ -16,7 +16,7 @@ class Piece
     raise Exception.new "This method needs to be defined in the subclass"
   end
 
-  def valid_move?(to:, from:)
+  def valid_move?(to:, from:, board:)
     # everyone needs a method to check if they can move to a square
     raise Exception.new "This method needs to be defined in the subclass"
   end
@@ -40,22 +40,5 @@ class Piece
 
   def last_row 
     white? ? 0 : 7
-  end
-
-  private 
-
-  def add_valid_move(from:, to:, board:, moves:) 
-    return unless board.on_board?(to)
-    captures = move_captures(to: to, board: board)
-
-    if teammate?(captures.color)
-      return
-    else
-      moves << Move.new(from: from, to: to, piece: self, captures: captures) 
-    end
-  end
-
-  def move_captures(to:, board:)
-    board.get_piece(to)
   end
 end
