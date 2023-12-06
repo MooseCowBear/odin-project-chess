@@ -1,61 +1,40 @@
-require_relative '../euclid.rb'
-require_relative '../path_checker.rb'
-require_relative '../board_check.rb'
+require_relative "../euclid.rb"
+require_relative "./piece.rb"
 
-require 'set'
-
-class Bishop
+class Bishop < Piece
   include Euclid
-  include PathChecker
-  include BoardCheck
+  attr_reader :offsets, :slopes
 
-  attr_reader :slopes, :color, :num
-
-  def initialize(num = 1, color = "white")
-    @slopes = Set.new([1.0, -1.0])
-    @color = color
-    @num = num
+  def initialize(color:, position:, promotable: false)
+    super
+    @offsets = [[1, 1], [-1, 1], [1, -1], [-1, -1]]
+    @slopes = [1.0, -1.0]
   end
 
   def to_s 
-    color == "white" ? "\u{2657}" : "\u{265D}"
+    white? ? "\u{2657}" : "\u{265D}"
   end
 
-  def get_start_position
-    if num == 1
-      color == "black" ? [0, 2] : [7, 2]
-    else
-      color == "black" ? [0, 5] : [7, 5]
-    end
+  def valid_move?(from:, to:, board:) # exact same as queen...
+    slopes.include?(slope(from, to)) && !teammate?(board.get_piece(to)&.color)
   end
 
-  def moves(board, start_idx)
-    moves = Hash.new { |h, k| h[k] = [] }
-    offsets = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
+  def valid_moves(from:, board:) # exact same as queen...
+    moves = []
 
-    offsets.each do |o|
-      m = start_idx[0] + o[0]
+    offsets.each do |offset|
+      to = [from[0] + offset[0], from[1] + offset[1]]
 
-      n = start_idx[1] + o[1]
-
-      while on_board?([m, n])
-        if valid_move?(board, start_idx, [m, n])
-          moves[start_idx] << [m, n] 
-
-          m += o[0]
-
-          n += o[1]
-        else 
-          break
+      while board.on_board?(to)
+        if valid_move?(from: from, to: to, board: board)
+          moves << Move.new(from: from, to: to, piece: self, captures: board.get_piece(to))
+          to = [to[0] + offset[0], to[1] + offset[1]]
+          break if opponent?(board.get_piece(to)&.color) # hit opponent
+        else
+          break # hit a teammate or end of board
         end
       end
     end
     moves
-  end
-
-  def valid_move?(board, start_idx, end_idx)
-    slope = slope(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    
-    slopes.include?(slope) && clear_non_vertical_path?(color, board, start_idx, end_idx, slope)
   end
 end

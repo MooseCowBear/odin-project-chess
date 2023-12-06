@@ -1,111 +1,81 @@
 require_relative '../lib/pieces/bishop.rb'
 
 describe Bishop do
-  describe '#valid_move?' do
-    subject(:test_bishop) { described_class.new }
-    let(:opponent) { double(color: "black") }
-    let(:teammate) { double(color: "white") }
-    let(:board) { 
-      [
-        [nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, teammate, nil, nil],
-        [nil, nil, "B", nil, nil, nil],
-        [nil, opponent, nil, nil, nil, nil],
-        [nil, nil, nil, nil, opponent, nil],
-        [nil, nil, nil, nil, nil, nil]
-      ]
-    }
+  # needs update
+  subject(:test_bishop) { described_class.new(color: "white", position: [7, 2]) }
 
-    context 'when trying to move on a diagonal with no obstacle' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [0, 0]
-        res = test_bishop.valid_move?(board, start_pt, end_pt)
+  describe '#valid_move?' do
+    context "when the move is unobstructed" do
+      it "returns true when moving diagonally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 1]).and_return(nil)
+        res = test_bishop.valid_move?(from: [3, 3], to: [1, 1], board: test_board)
         expect(res).to be true
       end
-    end
 
-    context 'when trying to move on a diagonal with an obstacle' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [5, 5]
-        res = test_bishop.valid_move?(board, start_pt, end_pt)
+      it "returns false when moving horizontally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 3]).and_return(nil)
+        res = test_bishop.valid_move?(from: [1, 1], to: [1, 3], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns false when moving vertically" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 3]).and_return(nil)
+        res = test_bishop.valid_move?(from: [3, 3], to: [1, 3], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns false when moving at angle other than diagonally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 2]).and_return(nil)
+        res = test_bishop.valid_move?(from: [3, 3], to: [1,21], board: test_board)
         expect(res).to be false
       end
     end
 
-    context 'when trying to move not on a diagonal' do
-      it 'returns false if there is no obstacle' do
-        start_pt = [2, 2]
-        end_pt = [4, 1]
-        res = test_bishop.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
-      end
-
-      it 'returns false if there is an obstacle' do
-        start_pt = [2, 2]
-        end_pt = [0, 5]
-        res = test_bishop.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
-      end
-    end
-
-    context 'when teammate is blocking path' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [1, 3]
-        res = test_bishop.valid_move?(board, start_pt, end_pt)
+    context "when move is obstructed" do
+      it "returns false" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([4, 4]).and_return(test_teammate)
+        res = test_bishop.valid_move?(from: [1, 1], to: [4, 4], board: test_board)
         expect(res).to be false
       end
     end
   end
 
-  describe '#moves' do
-    subject(:test_bishop) { described_class.new }
-    let(:opponent) { double(color: "black") }
-    let(:teammate) { double(color: "white") }
-
-    context "when bishop's moves are constrained" do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, opponent, nil, nil, nil, nil], #opponent at 1, 3
-          [nil, nil, test_bishop, nil, nil, nil, nil, nil], #bishop at 2, 2
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [teammate, nil, nil, nil, teammate, nil, nil, nil], #teammates at 4, 0 and 4, 4
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
-
-      it 'returns expected moves up to and including opponent but excluding teammates' do
-        res = test_bishop.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-
-        expect(value_to_check).to match_array([[0, 0], [1, 1], [3, 3], [1, 3], [3, 1]])
+  describe "#valid_moves" do
+    context "when bishop is unobstructed" do
+      it "returns only moves that are are on the board" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true, false)
+        res = test_bishop.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(1)
       end
     end
 
-    context "when bishop's move are unconstrained" do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, test_bishop, nil, nil, nil, nil, nil], #bishop at 2, 2
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
+    context "when bishops's moves are obstructed by teammates" do
+      it "does not return any moves to squares holding teammates" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_teammate)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_bishop.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(0)
+      end
+    end
 
-      it 'returns every square on each diagonal' do
-        res = test_bishop.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-
-        expect(value_to_check).to match_array([[0, 0], [1, 1], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [1, 3], [0, 4], [3, 1], [4, 0]])
+    context "when bishop's moves are obstructed by opponents" do
+      it "includes moves to opponent squares but not beyond" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_opponent)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_bishop.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(4)
       end
     end
   end
