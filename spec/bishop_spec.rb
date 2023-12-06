@@ -1,7 +1,6 @@
 require_relative '../lib/pieces/bishop.rb'
 
 describe Bishop do
-  # needs update
   subject(:test_bishop) { described_class.new(color: "white", position: [7, 2]) }
 
   describe '#valid_move?' do
