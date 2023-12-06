@@ -1,108 +1,89 @@
 require_relative '../lib/pieces/rook.rb'
 
 describe Rook do
+  subject(:test_rook) { described_class.new(color: "white", position: [7, 0]) }
+
   describe '#valid_move?' do
-    subject(:test_rook) { described_class.new }
-    let(:elem) { double(color: "black") }
-    let(:board) { 
-      [
-        [nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil],
-        [elem, nil, "R", elem, nil, nil],
-        [nil, nil, elem, nil, nil, nil],
-        [nil, nil, nil, nil, elem, nil],
-        [nil, nil, nil, nil, nil, nil]
-      ]
-    }
-    context 'when trying to move horizontally' do
-      it 'returns true if there is no obstacle' do
-        start_pt = [2, 2]
-        end_pt = [2, 0]
-        res = test_rook.valid_move?(board, start_pt, end_pt)
+    context "when moving horizontally" do
+      it "returns true moving left unobstructed" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([0, 3]).and_return(nil)
+        res = test_rook.valid_move?(from: [0, 1], to: [0, 3], board: test_board)
         expect(res).to be true
       end
 
-      it 'returns false if there is an obstacle' do
-        start_pt = [2, 2]
-        end_pt = [2, 4]
-        res = test_rook.valid_move?(board, start_pt, end_pt)
+      it "returns true moving right unobstructed" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([0, 1]).and_return(nil)
+        res = test_rook.valid_move?(from: [0, 3], to: [0, 1], board: test_board)
+        expect(res).to be true
+      end
+
+      it "returns false if obstructed" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([0, 1]).and_return(test_teammate)
+        res = test_rook.valid_move?(from: [0, 3], to: [0, 1], board: test_board)
         expect(res).to be false
       end
     end
 
-    context 'when trying to move vertically' do
-      it 'returns true if there is no obstacle' do
-        start_pt = [2, 2]
-        end_pt = [0, 2]
-        res = test_rook.valid_move?(board, start_pt, end_pt)
+    context "when moving vertically" do
+      it "returns true moving from higher indexed row to lower" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 0]).and_return(nil)
+        res = test_rook.valid_move?(from: [3, 0], to: [1, 0], board: test_board)
         expect(res).to be true
       end
 
-      it 'returns false if there is an obstacle' do
-        start_pt = [2, 2]
-        end_pt = [4, 2]
-        res = test_rook.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
+      it "returns true moving from lower indexed row to higher" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([3, 0]).and_return(nil)
+        res = test_rook.valid_move?(from: [1, 0], to: [3, 0], board: test_board)
+        expect(res).to be true
       end
     end
 
-    context 'when trying to move at an angle' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [5, 5]
-        res = test_rook.valid_move?(board, start_pt, end_pt)
+    context "when moving at angle other than horizontally" do
+      it "returns false" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([3, 3]).and_return(nil)
+        res = test_rook.valid_move?(from: [1, 1], to: [3, 3], board: test_board)
         expect(res).to be false
       end
     end
   end
 
-  describe '#moves' do
-    subject(:test_rook) { described_class.new }
-    let(:opponent) { double(color: "black") }
-    let(:teammate) { double(color: "white") }
-
-    context "when bishop's moves are constrained" do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, opponent, nil, nil, nil, nil, nil], #opponent at 2, 3
-          [nil, nil, test_rook, nil, nil, nil, teammate, nil], #rook at 2, 2, teammate at 2, 6
-          [nil, nil, teammate, nil, nil, nil, nil, nil], #teammate at 3, 2
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
-
-      it 'returns expected moves up to and including opponent but excluding teammates' do
-        res = test_rook.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-
-        expect(value_to_check).to match_array([[2, 1], [2, 0], [1, 2], [2, 3], [2, 4], [2, 5]])
+  describe "#valid_moves" do
+    context "when rook is unobstructed" do
+      it "returns only moves that are are on the board" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true, false)
+        res = test_rook.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(1)
       end
     end
 
-    context "when bishop's move are unconstrained" do
-      let(:moves_board) { 
-    
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, test_rook, nil, nil, nil, nil, nil], #rook at 2, 2
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
+    context "when rook is obstructed by teammates" do
+      it "does not return any moves to squares holding teammates" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_teammate)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_rook.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(0)
+      end
+    end
 
-      it 'returns every square on each diagonal' do
-        res = test_rook.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-
-        expect(value_to_check).to match_array([[2, 1], [2, 0], [1, 2], [0, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2]])
+    context "when rook is obstructed by opponents" do
+      it "includes moves to opponent squares but not beyond" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_opponent)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_rook.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(4)
       end
     end
   end
