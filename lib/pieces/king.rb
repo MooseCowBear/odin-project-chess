@@ -1,48 +1,33 @@
-require_relative '../euclid.rb'
-require_relative '../path_checker.rb'
-require_relative '../board_check.rb'
+require_relative "./piece.rb"
 
-require 'set'
+class King < Piece
+  attr_reader :offsets
 
-class King
-  include Euclid
-  include PathChecker
-  include BoardCheck
-
-  attr_reader :distances, :color
-  attr_accessor :moved
-
-  def initialize(color = "white")
-    @distances = Set.new([1.0, Math.sqrt(2)])
-    @moved = false
-    @color = color
+  def initialize(color:, position:, promotable: false)
+    super
+    @offsets = [[-1, 0], [1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]
   end
 
-  def to_s 
-    color == "white" ? "\u{2654}" : "\u{265A}"
+  def to_s
+    white? ? "\u{2654}" : "\u{265A}"
   end
 
-  def get_start_position
-    color == "black" ? [0, 4] : [7, 4]
+  def initial_position # maybe don't need this
+    white? ? [7, 4] : [0, 4]
   end
 
-  def valid_move?(board, start_idx, end_idx)
-    y1, x1 = start_idx
-    y2, x2 = end_idx
-    dist = distance(x1, y1, x2, y2)
-    distances.include?(dist) && board[end_idx[0]][end_idx[1]]&.color != color
+  def valid_move?(from:, to:, board:)
+    offsets.include?([to[0] - from[0], to[1] - from[1]]) && !teammate?(board.get_piece(to)&.color) 
   end
 
-  def get_adjacent_positions(position)
-    adjacent = []
-    y, x = position
-    (y - 1).upto(y + 1) do |i|
-      (x - 1).upto(x + 1) do |j|
-        if [i, j] != position
-          adjacent << [i, j] if on_board?([i, j])
-        end
+  def valid_moves(from:, board:) 
+    moves = []
+    offsets.each do |offset| 
+      to = [from[0] + offset[0], from[1] + offset[1]]
+      if board.on_board?(to) && valid_move?(from: from, to: to, board: board)
+        moves << Move.new(from: from, to: to, piece: self, captures: board.get_piece(to))
       end
     end
-    adjacent
+    moves 
   end
 end
