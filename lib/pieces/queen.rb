@@ -1,4 +1,4 @@
-require_relative '../euclid.rb'
+require_relative "../euclid.rb"
 require_relative "./piece.rb"
 
 class Queen < Piece
@@ -12,7 +12,7 @@ class Queen < Piece
   end
 
   def to_s 
-    color == "white" ? "\u{2655}" : "\u{265B}"
+    white? ? "\u{2655}" : "\u{265B}"
   end
 
   def initial_position # maybe don't need this
