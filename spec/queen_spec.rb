@@ -1,141 +1,80 @@
 require_relative '../lib/pieces/queen.rb'
 
 describe Queen do
+  subject(:test_queen) { described_class.new(color: "white", position: [7, 3], promotable: false) } 
+
   describe '#valid_move?' do
-    subject(:test_queen) { described_class.new }
-    let(:elem) { double(color: "black") }
-    let(:board) { 
-      [
-        [nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil],
-        [elem, nil, "Q", elem, nil, nil],
-        [nil, nil, elem, nil, nil, nil],
-        [nil, nil, nil, nil, elem, nil],
-        [nil, nil, nil, nil, nil, nil]
-      ]
-    }
-
-    context 'when the move is horizontal and there is no other element in the way' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [2, 1]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
+    context "when the move is unobstructed" do
+      it "returns true when queen is moving horizontally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 3]).and_return(nil)
+        res = test_queen.valid_move?(from: [1, 1], to: [1, 3], board: test_board)
         expect(res).to be true
       end
-    end
 
-    context 'when the move is horizontal and there is an element in the way' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [2, 4]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
+      it "returns true when moving vertically" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([3, 1]).and_return(nil)
+        res = test_queen.valid_move?(from: [1, 1], to: [3, 1], board: test_board)
+        expect(res).to be true
+      end
+
+      it "returns true when moving diagonally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([3, 3]).and_return(nil)
+        res = test_queen.valid_move?(from: [1, 1], to: [3, 3], board: test_board)
+        expect(res).to be true
+      end
+
+      it "returns false when moving on an angle other than diagonally" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([2, 4]).and_return(nil)
+        res = test_queen.valid_move?(from: [1, 1], to: [2, 4], board: test_board)
         expect(res).to be false
       end
     end
 
-    context 'when the move is vertical and there is no other element in the way' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [0, 2]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
-        expect(res).to be true
-      end
-    end
-
-    context 'when the move is vertical and there is an element in the way' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [4, 2]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
-      end
-    end
-
-    context 'when the move has a slope with absolute value of 1 and there is no other element in the way' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [4, 4]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
-        expect(res).to be true
-      end
-
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [0, 0]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
-        expect(res).to be true
-      end
-    end
-
-    context 'when the move has a slope of 1 and there is an element in the way' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [5, 5]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
-      end
-    end
-
-    context 'when the slope is not contained in the slopes set' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [1, 4]
-        res = test_queen.valid_move?(board, start_pt, end_pt)
+    context "when move is obstructed" do
+      it "it returns false" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([4, 4]).and_return(test_teammate)
+        res = test_queen.valid_move?(from: [1, 1], to: [4, 4], board: test_board)
         expect(res).to be false
       end
     end
   end
 
-  describe '#moves' do
-    subject(:test_queen) { described_class.new }
-    let(:opponent) { double(color: "black") }
-    let(:teammate) { double(color: "white") }
-
-    context "when bishop's moves are constrained" do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, opponent, opponent, opponent, nil, nil, nil, nil], 
-          [nil, opponent, test_queen, opponent, nil, nil, nil, nil], #q at 2, 2
-          [nil, teammate, teammate, teammate, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
-
-      it 'returns expected moves up to and including opponent but excluding teammates' do
-        res = test_queen.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-
-        expect(value_to_check).to match_array([[1, 1], [1, 2], [1, 3], [2, 1], [2, 3]])
+  describe "#valid_moves" do
+    context "when queen is unobstructed" do
+      it "returns only moves that are are on the board" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true, false)
+        res = test_queen.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(1)
       end
     end
 
-    context "when bishop's move are unconstrained" do
-      let(:moves_board) { 
-    
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, test_queen, nil, nil, nil, nil, nil], # at 2, 2
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
+    context "when queen's moves are obstructed by teammates" do
+      it "does not return any moves to squares holding teammates" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_teammate)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_queen.valid_moves(from: [0, 0], board: test_board)
+        expect(res.length).to eq(0)
+      end
+    end
 
-      it 'returns every square on each diagonal' do
-        res = test_queen.moves(moves_board, [2, 2])
-        value_to_check = res[[2, 2]]
-        moves = [
-          [0, 0], [1, 1], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [1, 3], [0, 4], [3, 1], [4, 0],
-          [2, 1], [2, 0], [1, 2], [0, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2]
-        ]
-        expect(value_to_check).to match_array(moves)
+    context "when queen's moves are obstructed by opponents" do
+      it "includes moves to opponent squares but not beyond" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_opponent)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_queen.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(8)
       end
     end
   end
