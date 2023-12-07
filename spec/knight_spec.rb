@@ -1,113 +1,84 @@
 require_relative '../lib/pieces/knight.rb'
 
 describe Knight do
+  subject(:test_knight) { described_class.new(color: "white", position: [7, 1]) }
+
   describe '#valid_move?' do
-    subject(:test_knight) { described_class.new }
-    let(:board) { 
-      [
-        [nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil],
-        ["x", nil, "K", "x", nil, nil, nil],
-        [nil, nil, "x", nil, nil, nil, nil],
-        [nil, nil, nil, nil, "x", nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil]
-      ]
-    }
-
-    context 'when the slope is 2 and distance is correct' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [4, 3]
-        res = test_knight.valid_move?(board, start_pt, end_pt)
+    context "when trying to move according to knight rules" do
+      it "returns true when moving to empty square" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([1, 2]).and_return(nil)
+        res = test_knight.valid_move?(from: [0, 0], to: [1, 2], board: test_board)
         expect(res).to be true
       end
-    end
 
-    context 'when the slope is -0.5 and distance is correct' do
-      it 'returns true' do
-        start_pt = [2, 2]
-        end_pt = [1, 4]
-        res = test_knight.valid_move?(board, start_pt, end_pt)
+      it "returns true when moving to square containing opponent" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with([0, 0]).and_return(test_opponent)
+        res = test_knight.valid_move?(from: [2, 1], to: [0, 0], board: test_board)
         expect(res).to be true
       end
-    end
 
-    context 'when slope is correct but distance is not' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [4, 6]
-        res = test_knight.valid_move?(board, start_pt, end_pt)
+      it "returns false when moving to square containging teammate" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([1, 2]).and_return(test_teammate)
+        res = test_knight.valid_move?(from: [0, 0], to: [1, 2], board: test_board)
         expect(res).to be false
       end
     end
 
-    context 'when the slope is nil' do
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [0, 2]
-        res = test_knight.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
-      end
-    end
-
-    context 'when the slope is 1' do 
-      it 'returns false' do
-        start_pt = [2, 2]
-        end_pt = [3, 3]
-        res = test_knight.valid_move?(board, start_pt, end_pt)
+    context "when trying to move not according to knight rules" do
+      it "returns false" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([2, 2]).and_return(nil)
+        res = test_knight.valid_move?(from: [0, 0], to: [2, 2], board: test_board)
         expect(res).to be false
       end
     end
   end
 
-  describe '#moves' do
-    subject(:test_knight) { described_class.new }
-    let(:opponent) { double(color: "black") }
-    let(:teammate) { double(color: "white") }
-
-    context 'when knight is in the middle of the board' do
-      let(:moves_board) { 
-    
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, test_knight, nil, nil, nil, nil], # 3,3
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
-
-      it 'returns the 8 expected moves' do
-        res = test_knight.moves(moves_board, [3, 3])
-        value_to_check = res[[3, 3]]
-
-        expect(value_to_check).to match_array([[1, 4], [4, 1], [1, 2], [2, 1], [4, 5], [5, 4], [2, 5], [5, 2]])
+  describe "#valid_moves" do
+    context "when knight is landing on empty squares" do
+      it "returns all available squares" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_knight.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(8)
       end
     end
 
-    context 'when knight is at the edge of the board' do
-      let(:moves_board) { 
-    
-        [
-          [test_knight, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
+    context "when at the edge of the board" do
+      it "returns only squares on the board" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true, false)
+        res = test_knight.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(1)
+      end
+    end
 
-      it 'returns only moves on the board' do
-        res = test_knight.moves(moves_board, [0, 0])
-        value_to_check = res[[0, 0]]
+    context "when blocked by teammate" do
+      it "returns only squares not blocked by teammate" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_teammate)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_knight.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(0)
+      end
+    end
 
-        expect(value_to_check).to match_array([[1, 2], [2, 1]])
+    context "when landing on opponent" do
+      it "returns only squares with opponents" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_opponent)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_knight.valid_moves(from: [4, 4], board: test_board)
+        expect(res.length).to eq(8)
       end
     end
   end
