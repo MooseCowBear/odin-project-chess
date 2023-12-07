@@ -1,92 +1,63 @@
-require_relative '../euclid.rb'
-require_relative '../path_checker.rb'
-require_relative '../board_check.rb'
+require_relative "./piece.rb"
 
-require 'set'
-
-class Pawn
-  include Euclid
-  include PathChecker
-  include BoardCheck
-
-  attr_reader :color, :num
-  attr_accessor :moved
-
-  def initialize(num = 1, color = "white")
-    @slopes = Set.new([nil]) 
-    @moved = false
-    @color = color
-    @num = num
+class Pawn < Piece
+  def initialize(color:, position:, promotable: true)
+    super 
   end
 
   def to_s 
     color == "white" ? "\u{2659}" : "\u{265F}"
   end
 
-  def get_start_position
-    case num
-    when 1
-      color == "black" ? [1, 0] : [6, 0]
-    when 2
-      color == "black" ? [1, 1] : [6, 1]
-    when 3
-      color == "black" ? [1, 2] : [6, 2]
-    when 4
-      color == "black" ? [1, 3] : [6, 3]
-    when 5
-      color == "black" ? [1, 4] : [6, 4]
-    when 6
-      color == "black" ? [1, 5] : [6, 5]
-    when 7
-      color == "black" ? [1, 6] : [6, 6]
+  def valid_move?(from:, to:, board:) 
+    if !board.get_piece(to)
+      non_attack_offsets.include?([to[0] - from[0], to[1] - from[1]])
+    elsif self.opponent?(board.get_piece(to).color)
+      attack_offsets.include?([to[0] - from[0], to[1] - from[1]])
     else
-      color == "black" ? [1, 7] : [6, 7]
+      false # teammate
     end
   end
 
-  def moves(board, start_idx)
-    moves = Hash.new { |h, k| h[k] = [] }
-    dir = color == "white" ? -1 : 1
-    offsets = [ [dir, 0], [dir * 2, 0], [dir, 1], [dir, -1] ] 
-    offsets.each do |o|
-      m = start_idx[0] + o[0]
-      n = start_idx[1] + o[1]
-      next unless on_board?([m, n])
-      moves[start_idx] << [m, n] if valid_move?(board, start_idx, [m, n])
-    end
-    moves
-  end
+  def valid_moves(from:, board:)
+    moves = []
 
-  def valid_move?(board, start_idx, end_idx)
-    #note: en passant capture is checked in chess class
-    taking_opponent_piece = capturing?(board, end_idx)
-    if taking_opponent_piece
-      (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
-      correct_direction?(start_idx, end_idx))
-    else
-      (correct_distance?(start_idx, end_idx, taking_opponent_piece) && 
-      correct_direction?(start_idx, end_idx) && 
-      clear_vertical_path?(color, board, start_idx, end_idx, true))
+    attack_offsets.each do |offset|
+      to = [from[0] + offset[0], from[1] + offset[1]]
+      if board.on_board?(to) && valid_move?(from: from, to: to, board: board)
+        moves << Move.new(from: from, to: to, piece: self, captures: board.get_piece(to)) 
+      end
     end
+
+    distance = moved ? 1 : 2
+    offset = non_attack_offsets.first
+
+    distance.times do |i|
+      to = [from[0] + offset[0] * (i + 1), from[1] + offset[1]]
+      if board.on_board?(to) && !board.get_piece(to) # is the square empty
+        moves << Move.new(from: from, to: to, piece: self, captures: nil)
+      else
+        break 
+      end
+    end
+    moves 
   end
 
   private
 
-  def correct_distance?(start_idx, end_idx, capture)
-    dist = distance(start_idx[1], start_idx[0], end_idx[1], end_idx[0])
-    (!capture && (dist == 1.0 || (dist == 2.0 && !moved))) || (capture && dist == Math.sqrt(2))
-  end
-
-  def capturing?(board, end_idx)
-    !board[end_idx[0]][end_idx[1]].nil? && board[end_idx[0]][end_idx[1]].color != color
-  end
-
-  def correct_direction?(start_idx, end_idx)
-    if color == "white" && end_idx[0] < start_idx[0]
-      return true
-    elsif color == "black" && end_idx[0] > start_idx[0]
-      return true
+  def non_attack_offsets
+    if white?
+      moved ? [[-1, 0]] : [[-1, 0], [-2, 0]] 
+    else
+      moved ? [[1, 0]] : [[1, 0], [2, 0]]
     end
-    false
+  end
+
+  def attack_offsets 
+    if white?
+      [[-1, -1], [-1, 1]]
+    else
+      [[1, -1], [1, 1]] 
+    end
   end
 end

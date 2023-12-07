@@ -1,159 +1,168 @@
 require_relative '../lib/pieces/pawn.rb'
 
 describe Pawn do
+  subject(:test_pawn) { described_class.new(color: "white", position: [6, 2]) }
+
   describe '#valid_move?' do
-    subject(:test_pawn) { described_class.new(1, "black") }
-    let(:teammate) { double(color:"black") }
-    let(:opponent_pawn) { double(color:"white")}
-
-    let(:board) { 
-      [
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, "p", nil, nil, nil, nil],
-        [nil, nil, nil, nil, opponent_pawn, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil], 
-        [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, nil]
-      ]
-    }
-
-    context 'when move is one space forward and there is a clear path' do
-      it 'returns true' do
-        start_pt = [1, 3]
-        end_pt = [2, 3]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
+    context "moving one space forward" do
+      it "returns true if moving to a free board space" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([5, 2]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 2], board: test_board)
         expect(res).to be true
       end
-    end
 
-    context 'when move is two spaces, pawn has not moved yet, and there is a clear path' do
-      it 'returns true' do
-        start_pt = [1, 3]
-        end_pt = [3, 3]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
-        expect(res).to be true
+      it "returns false if moving to a space occupied by opponent" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with([5, 2]).and_return(test_opponent)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 2], board: test_board)
+        expect(res).to be false
       end
-    end
 
-    context 'when trying to capture on the diagonal and there is an opponent piece to take' do
-      it 'returns true' do
-        start_pt = [1, 3]
-        end_pt = [2, 4]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
-        expect(res).to be true
-      end
-    end
-
-    context 'when trying to capture on the diagonal and there is no opponent piece to take' do
-      it 'returns false' do
-        start_pt = [1, 3]
-        end_pt = [2, 2]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
+      it "returns false if moving to a space occupied by teammate" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([5, 2]).and_return(test_teammate)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 2], board: test_board)
         expect(res).to be false
       end
     end
 
-    #everything below requires alteration to orig set up
-    context 'when move is one space but path is not clear' do
-      it 'returns false' do
-        board[2][3] = teammate
-        start_pt = [1, 3]
-        end_pt = [2, 3]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
-        expect(res).to be false
+    context "move two spaces forward" do
+      it "returns true if not moved and free board space" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([4, 2]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [4, 2], board: test_board)
+        expect(res).to be true
       end
-    end
 
-    context 'when tries to move two spaces, but pawn has already moved' do
-      it 'returns false' do
+      it "returns false if moved" do
         test_pawn.moved = true
-        start_pt = [1, 3]
-        end_pt = [3, 3]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([4, 2]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [4, 2], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns false if board space occupied by opponent" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with([4, 2]).and_return(test_opponent)
+        res = test_pawn.valid_move?(from: [6, 2], to: [4, 2], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns false if board space occupied by teammate" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([4, 2]).and_return(test_teammate)
+        res = test_pawn.valid_move?(from: [6, 2], to: [4, 2], board: test_board)
         expect(res).to be false
       end
     end
 
-    context 'when tries to capture on the diagonal but the piece is on same team' do
-      it 'returns false' do
-        board[2][2] = teammate
-        start_pt = [1, 3]
-        end_pt = [2, 2]
-        res = test_pawn.valid_move?(board, start_pt, end_pt)
+    context "moving more than 2 spaces forward" do
+      it "returns false" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([3, 2]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [3, 2], board: test_board)
+        expect(res).to be false
+      end
+    end
+
+    context "moving diagonally" do
+      it "returns false when square empty" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([5, 3]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 3], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns false when square occupied by teammate" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with([5, 3]).and_return(test_teammate)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 3], board: test_board)
+        expect(res).to be false
+      end
+
+      it "returns true if square is occupied by opponent" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with([5, 3]).and_return(test_opponent)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 3], board: test_board)
+        expect(res).to be true
+      end
+    end
+
+    context "moving horizontally" do
+      it "returns false" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([6, 3]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [6, 3], board: test_board)
+        expect(res).to be false
+      end
+    end
+
+    context "moving at angle not diagonal" do
+      it "returns false" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with([5, 0]).and_return(nil)
+        res = test_pawn.valid_move?(from: [6, 2], to: [5, 0], board: test_board)
         expect(res).to be false
       end
     end
   end
 
-  describe '#moves' do
-    subject(:test_pawn) { described_class.new(1, "black") }
-    let(:opponent) { double(color: "white") }
-    let(:teammate) { double(color: "black") }
+  describe "#valid_moves" do
+    context "when pawn is unobstructed and no attacks" do
+      it "returns 1 non attack move if moved and move is on board" do
+        test_pawn.moved = true
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_pawn.valid_moves(from: [6, 3], board: test_board)
+        expect(res.length).to eq(1)
+      end
 
-    context 'when the pawn has opponents to capture' do 
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
-          [opponent, nil, opponent, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
+      it "returns 2 non attack moves if not moved and moves are on board" do
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_pawn.valid_moves(from: [6, 2], board: test_board)
+        expect(res.length).to eq(2)
+      end
 
-      it 'returns moves that include captures' do
-        res = test_pawn.moves(moves_board, [1, 1])
-        value_to_check = res[[1, 1]]
-
-        expect(value_to_check).to match_array([[2, 0], [2, 2], [2, 1], [3, 1]])
+      it "returns 0 moves if moved and move is off board" do
+        test_pawn.moved = true
+        test_board = double
+        allow(test_board).to receive(:get_piece).with(anything).and_return(nil)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(false)
+        res = test_pawn.valid_moves(from: [0, 3], board: test_board)
+        expect(res.length).to eq(0)
       end
     end
 
-    context 'when the pawn has no captures, has not moved, has two free spaces before it' do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
-
-      it 'returns two possible moves' do
-        res = test_pawn.moves(moves_board, [1, 1])
-        value_to_check = res[[1, 1]]
-
-        expect(value_to_check).to match_array([[2, 1], [3, 1]])
+    context "when pawn is obstructed and no attacks" do
+      it "returns 0 moves if piece in front of pawn" do
+        test_board = double
+        test_teammate = double(color: "white")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_teammate)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_pawn.valid_moves(from: [6, 2], board: test_board)
+        expect(res.length).to eq(0)
       end
     end
-    context 'when the path is blocked and no captures available' do
-      let(:moves_board) { 
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, test_pawn, nil, nil, nil, nil, nil, nil], #1, 1
-          [nil, opponent, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil], 
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-        ]
-      }
 
-      it 'returns an empty hash' do
-        res = test_pawn.moves(moves_board, [1, 1])
-        value_to_check = res[[1, 1]]
-
-        expect(value_to_check).to match_array([])
+    context "when there are available attacks" do
+      it "returns correct number of attacking moves" do
+        test_board = double
+        test_opponent = double(color: "black")
+        allow(test_board).to receive(:get_piece).with(anything).and_return(test_opponent)
+        allow(test_board).to receive(:on_board?).with(anything).and_return(true)
+        res = test_pawn.valid_moves(from: [6, 2], board: test_board)
+        expect(res.length).to eq(2)
       end
     end
   end
