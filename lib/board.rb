@@ -17,4 +17,10 @@ class Board
   def on_board?(position)
     position[0].between?(0, 7) && position[1].between?(0, 7)
   end
+
+  def under_attack?(from:, to:, color:) 
+    !!(on_board?(from) && 
+      get_piece(from)&.opponent?(color) && 
+      get_piece(from)&.valid_move?(from: from, to: to, board: self)) 
+  end
 end
