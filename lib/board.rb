@@ -18,9 +18,21 @@ class Board
     position[0].between?(0, 7) && position[1].between?(0, 7)
   end
 
-  def under_attack?(from:, to:, color:) 
+  def under_attack?(from:, to:, piece:) 
     !!(on_board?(from) && 
-      get_piece(from)&.opponent?(color) && 
+      get_piece(from)&.opponent?(piece) && 
       get_piece(from)&.valid_move?(from: from, to: to, board: self)) 
+  end
+
+  def column_neighbors(move:)
+    [neighbor(move: move, direction: 1), neighbor(move: move, direction: -1)].compact
+  end
+
+  def neighbor(move:, direction:)
+    if on_board?([move.to[0], move.from[1] + direction]) 
+      get_piece([move.to[0], move.from[1] + direction])
+    else 
+      nil
+    end
   end
 end
