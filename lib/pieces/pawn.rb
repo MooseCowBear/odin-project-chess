@@ -9,10 +9,14 @@ class Pawn < Piece
     color == "white" ? "\u{2659}" : "\u{265F}"
   end
 
+  def direction
+    white? ? -1 : 1
+  end
+
   def valid_move?(from:, to:, board:) 
     if !board.get_piece(to)
       non_attack_offsets.include?([to[0] - from[0], to[1] - from[1]])
-    elsif self.opponent?(board.get_piece(to).color)
+    elsif self.opponent?(board.get_piece(to))
       attack_offsets.include?([to[0] - from[0], to[1] - from[1]])
     else
       false # teammate
