@@ -21,13 +21,13 @@ class Piece
     raise Exception.new "This method needs to be defined in the subclass"
   end
 
-  # want to be able to compare to player or another piece...
-  def teammate?(other_color) 
-    color == other_color
+  # want to be able to compare to player or another piece...Player needs to have a color?
+  def teammate?(other) 
+    color == other&.color
   end
 
-  def opponent?(other_color)
-    color != other_color
+  def opponent?(other)
+    color != other&.color
   end
 
   def to_s
