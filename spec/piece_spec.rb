@@ -5,11 +5,13 @@ describe Piece do
     subject(:test_piece) { described_class.new(color: "white", position: [0, 0], promotable: false) }
 
     it "returns true of colors match" do
-      expect(test_piece.teammate?("white")).to be(true)
+      test_teammate = double(color: "white")
+      expect(test_piece.teammate?(test_teammate)).to be(true)
     end
 
     it "returns false if colors don't match" do
-      expect(test_piece.teammate?("black")).to be(false)
+      test_opponent = double(color: "black")
+      expect(test_piece.teammate?(test_opponent)).to be(false)
     end
   end
 
@@ -17,11 +19,13 @@ describe Piece do
     subject(:test_piece) { described_class.new(color: "white", position: [0, 0], promotable: false) }
 
     it "returns false is colors match" do
-      expect(test_piece.opponent?("white")).to be(false)
+      test_teammate = double(color: "white")
+      expect(test_piece.opponent?(test_teammate)).to be(false)
     end
 
     it "returns true if colors don't match" do
-      expect(test_piece.opponent?("black")).to be(true)
+      test_opponent = double(color: "black")
+      expect(test_piece.opponent?(test_opponent)).to be(true)
     end
   end
 
