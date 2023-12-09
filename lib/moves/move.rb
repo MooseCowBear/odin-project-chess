@@ -1,11 +1,11 @@
 class Move
   attr_reader :piece, :from, :to
 
-  def initialize(from:, to:, piece:, captures: nil)
+  def initialize(from:, to:, piece:, captures:)
     @from = from
     @to = to
     @piece = piece
-    @captures = captures # the piece -- do you want this? compueter could use it
+    @captures = captures
   end
 
   def promote?
@@ -17,5 +17,9 @@ class Move
     board.update(position: to, value: piece)
     piece.position = to #update the piece to its new position
     piece.moved = true 
+  end
+
+  def check_enpassant?
+    piece.promotable? && (from[0] - to[0]).abs == 2
   end
 end
