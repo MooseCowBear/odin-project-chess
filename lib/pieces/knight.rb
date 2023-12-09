@@ -13,7 +13,7 @@ class Knight < Piece
   end
 
   def valid_move?(from:, to:, board:) # same as king
-    offsets.include?([to[0] - from[0], to[1] - from[1]]) && !teammate?(board.get_piece(to)&.color) 
+    offsets.include?([to[0] - from[0], to[1] - from[1]]) && !teammate?(board.get_piece(to)) 
   end
 
   def valid_moves(from:, board:) # same as king
