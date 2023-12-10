@@ -78,4 +78,30 @@ describe Board do
       expect(test_board.column_neighbor(move: double(to: [1, 0]), direction: -1)).to eq(nil)
     end
   end
+
+  describe "#column_neighbors" do
+    it "returns an array of length 1 when there is one column neighbor" do
+      test_piece = double(color: "white")
+      test_board.update(position: [1, 2], value: test_piece)
+      res = test_board.column_neighbors(move: double(to: [1, 1]))
+      expect(res.length).to be(1)
+      expect(res.first).to be(test_piece)
+    end
+
+    it "returns an array of length 2 when there are two column neighbors" do
+      test_neighbor_one = double(color: "white")
+      test_neighbor_two = double(color: "black")
+      test_board.update(position: [1, 4], value: test_neighbor_one)
+      test_board.update(position: [1, 2], value: test_neighbor_two)
+      res = test_board.column_neighbors(move: double(to: [1, 3]))
+      expect(res.length).to be(2)
+      expect(res.include?(test_neighbor_one)).to be(true)
+      expect(res.include?(test_neighbor_two)).to be(true)
+    end
+
+    it "returns an empty array if there are no column neighbors" do
+      res = test_board.column_neighbors(move: double(to: [1, 3]))
+      expect(res.empty?).to be(true)
+    end
+  end
 end
