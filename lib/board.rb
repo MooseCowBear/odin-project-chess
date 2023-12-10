@@ -24,13 +24,9 @@ class Board
       get_piece(from)&.valid_move?(from: from, to: to, board: self)) 
   end
 
-  def column_neighbors(move:)
-    [neighbor(move: move, direction: 1), neighbor(move: move, direction: -1)].compact
-  end
-
-  def neighbor(move:, direction:)
-    if on_board?([move.to[0], move.from[1] + direction]) 
-      get_piece([move.to[0], move.from[1] + direction])
+  def column_neighbor(move:, direction:)
+    if on_board?([move.to[0], move.to[1] + direction]) 
+      get_piece([move.to[0], move.to[1] + direction])
     else 
       nil
     end

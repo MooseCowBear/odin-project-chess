@@ -62,4 +62,20 @@ describe Board do
       expect(test_board.under_attack?(from: [0, 0], to: [1, 1], piece: double(color:"black"))).to be(false)
     end
   end
+
+  describe "#column_neighbor" do
+    it "returns piece in adjacent column if there is one" do
+      test_piece = double(color: "white")
+      test_board.update(position: [1, 2], value: test_piece)
+      expect(test_board.column_neighbor(move: double(to: [1, 1]), direction: 1)).to be(test_piece)
+    end
+
+    it "returns nil if there are no piece in adjacent column and column is on board" do
+      expect(test_board.column_neighbor(move: double(to: [1, 1]), direction: 1)).to eq(nil)
+    end
+
+    it "returns nil if column is not on board" do
+      expect(test_board.column_neighbor(move: double(to: [1, 0]), direction: -1)).to eq(nil)
+    end
+  end
 end
