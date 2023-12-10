@@ -38,7 +38,7 @@ describe Board do
       test_board.update(position: [0, 0], value: test_opponent)
       allow(test_opponent).to receive(:opponent?).with(anything).and_return(true)
       allow(test_opponent).to receive(:valid_move?).with(anything).and_return(true)
-      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], piece: double(color:"black"))).to be(true)
+      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], alliance: double(color:"black"))).to be(true)
     end
 
     it "returns false if teammate piece on from square" do
@@ -46,7 +46,7 @@ describe Board do
       test_board.update(position: [0, 0], value: test_teammate)
       allow(test_teammate).to receive(:opponent?).with(anything).and_return(false)
       allow(test_teammate).to receive(:valid_move?).with(anything).and_return(true)
-      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], piece: double(color: "white"))).to be(false)
+      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], alliance: double(color: "white"))).to be(false)
     end
 
     it "returns false if opponent piece cannot attack from square" do
@@ -54,12 +54,12 @@ describe Board do
       test_board.update(position: [0, 0], value: test_opponent)
       allow(test_opponent).to receive(:opponent?).with(anything).and_return(true)
       allow(test_opponent).to receive(:valid_move?).with(anything).and_return(false)
-      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], piece: double(color:"black"))).to be(false)
+      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], alliance: double(color:"black"))).to be(false)
     end
 
     it "returns false if from square is empty" do
       test_board.update(position: [0, 0], value: nil)
-      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], piece: double(color:"black"))).to be(false)
+      expect(test_board.under_attack?(from: [0, 0], to: [1, 1], alliance: double(color:"black"))).to be(false)
     end
   end
 
