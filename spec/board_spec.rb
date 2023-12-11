@@ -104,4 +104,53 @@ describe Board do
       expect(res.empty?).to be(true)
     end
   end
+
+  describe "#closest_neighbor_in_direction" do
+    context "when there is a closest piece in specified direction" do
+      it "returns teammate position if closest piece is teammate" do
+        test_teammate = double(color: "white")
+        test_opponent = double(color: "black")
+        test_board.update(position: [2, 2], value: test_teammate)
+        test_board.update(position: [3, 3], value: test_opponent)
+        expect(test_board.closest_neighbor_in_direction(square: [0, 0], direction: [1, 1])).to eq([2, 2])
+      end
+
+      it "returns opponent position if closest piece is opponent" do
+        test_teammate = double(color: "white")
+        test_opponent = double(color: "black")
+        test_board.update(position: [1, 0], value: test_teammate)
+        test_board.update(position: [2, 1], value: test_opponent)
+        expect(test_board.closest_neighbor_in_direction(square: [3, 2], direction: [-1, -1])).to eq([2, 1])
+      end
+    end
+
+    context "when there is no closest piece" do
+      it "returns a position that is not on the board" do
+        test_teammate = double(color: "white")
+        expect(test_board.closest_neighbor_in_direction(square: [0, 0], direction: [-1, -1])).to eq([-1, -1])
+      end
+    end
+  end
+
+  describe "#closest_neighbors" do
+    it "correctly sorts closest neighbors into teammates and opponents" do
+      test_teammate = double(color: "white")
+      test_opponent = double(color: "black")
+      test_board.update(position: [3, 3], value: test_teammate) # dir = [1, 1]
+      test_board.update(position: [0, 1], value: test_opponent) # dir = [-1, 0]
+      test_board.update(position: [2, 0], value: test_teammate) # dir = [1, -1]
+      test_board.update(position: [0, 0], value: test_opponent) # dir = [-1, -1]
+
+      allow(test_teammate).to receive(:opponent?).with(anything).and_return(false)
+      allow(test_opponent).to receive(:opponent?).with(anything).and_return(true)
+
+      res = test_board.closest_neighbors(square: [1, 1], alliance: test_teammate)
+      expect(res.first.length).to eq(2)
+      expect(res.last.length).to eq(2)
+      expect(res.first.include?([0, 1])).to be(true)
+      expect(res.first.include?([0, 0])).to be(true)
+      expect(res.last.include?([3, 3])).to be(true)
+      expect(res.last.include?([2, 0])).to be(true)
+    end
+  end
 end

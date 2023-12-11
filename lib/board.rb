@@ -1,12 +1,14 @@
 class Board
   attr_accessor :data
 
+  @@directions = [[1, 0], [0, 1], [1, 1], [-1, 0], [0, -1], [-1, -1], [1, -1], [-1, 1]]
+
   def initialize
     @data = Array.new(8) { Array.new(8) }
   end
 
   def get_piece(position)
-    @data[position[0]][position[1]]
+    data[position[0]][position[1]]
   end
 
   def update(position:, value:)
@@ -34,5 +36,38 @@ class Board
     else 
       nil
     end
+  end
+
+  def closest_neighbors(square:, alliance:) 
+    opponents = []
+    teammates = []
+
+    @@directions.each do |dir|
+      closest_neighbor = closest_neighbor_in_direction(square: square, direction: dir)
+      if !on_board?(closest_neighbor)
+        next
+      elsif get_piece(closest_neighbor)&.opponent?(alliance)
+        opponents << closest_neighbor
+      elsif get_piece(closest_neighbor)
+        teammates << closest_neighbor
+      end
+    end
+    [opponents, teammates]
+  end
+
+  def closest_neighbor_in_direction(square:, direction:)
+    row, col = square[0] + direction[0], square[1] + direction[1]
+    while on_board?([row, col])
+      if get_piece([row, col])
+        return [row, col]
+      end
+      row = row + direction[0]
+      col = col + direction[1]
+    end
+    [row, col]
+  end
+
+  def directions
+    @@directions
   end
 end
