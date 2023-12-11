@@ -3,6 +3,10 @@ require_relative "./piece.rb"
 class Knight < Piece
   @@offsets = [[1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, -1]]
 
+  def self.offsets
+    @@offsets
+  end
+
   def initialize(color:, position:, promotable: false)
     super
   end
@@ -24,9 +28,5 @@ class Knight < Piece
       end
     end
     moves
-  end
-
-  def offsets
-    @@offsets
   end
 end
