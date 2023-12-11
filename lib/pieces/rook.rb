@@ -3,22 +3,22 @@ require_relative "./piece"
 
 class Rook < Piece
   include Euclid
-  attr_reader :offsets, :slopes
+
+  @@offsets = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+  @@slopes = [0.0, nil]
 
   def initialize(color:, position:, promotable: false)
     super
-    @offsets = [[0, 1], [0, -1], [1, 0], [-1, 0]]
-    @slopes = [0.0, nil]
   end
 
   def valid_move?(from:, to:, board:) # exact same as queen...
-    slopes.include?(slope(from, to)) && !teammate?(board.get_piece(to))
+    @@slopes.include?(slope(from, to)) && !teammate?(board.get_piece(to))
   end
 
   def valid_moves(from:, board:) # exact same as queen...
     moves = []
 
-    offsets.each do |offset|
+    @@offsets.each do |offset|
       to = [from[0] + offset[0], from[1] + offset[1]]
 
       while board.on_board?(to)
