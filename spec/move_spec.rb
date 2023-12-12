@@ -1,4 +1,4 @@
-require_relative '../lib/moves/move.rb'
+require_relative ".../lib/moves/move.rb" lib/moves/move.rb
 
 describe Move do
   let(:board) { double() }
@@ -6,7 +6,7 @@ describe Move do
   describe "#promote?" do
     it "returns true when move piece is promotable and piece moves to last row" do
       test_piece = double(promotable: true, last_row: 7)
-      test_move = described_class.new(from: [6, 0], to: [7, 0], piece: test_piece)
+      test_move = described_class.new(from: [6, 0], to: [7, 0], piece: test_piece, captures: nil)
       allow(board).to receive(:update)
 
       expect(test_move.promote?).to be(true)
@@ -14,7 +14,7 @@ describe Move do
 
     it "returns false when move piece is not promotable" do
       test_piece = double(promotable: false, last_row: 7)
-      test_move = described_class.new(from: [6, 0], to: [7, 0], piece: test_piece)
+      test_move = described_class.new(from: [6, 0], to: [7, 0], piece: test_piece, captures: nil)
       allow(board).to receive(:update)
 
       expect(test_move.promote?).to be(false)
@@ -22,7 +22,7 @@ describe Move do
 
     it "returns false when move is not to last row" do
       test_piece = double(promotable: true, last_row: 7)
-      test_move = described_class.new(from: [6, 0], to: [6, 0], piece: test_piece)
+      test_move = described_class.new(from: [6, 0], to: [6, 0], piece: test_piece, captures: nil)
       allow(board).to receive(:update)
 
       expect(test_move.promote?).to be(false)
@@ -31,7 +31,7 @@ describe Move do
 
   describe "#execute" do
     let(:test_piece) { double(promotable: true, last_row: 7)}
-    subject(:test_move) { described_class.new(from: [6, 0], to: [7, 0], piece: test_piece) }
+    subject(:test_move) { described_class.new(from: [6, 0], to: [7, 0], piece: test_piece, captures: nil) }
 
     it "calls board update twice" do
       allow(test_piece).to receive(:position=)
