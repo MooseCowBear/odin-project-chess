@@ -60,6 +60,21 @@ describe PinFinder do
   end
 
   describe "#get_pins" do
-    
+    it "creates a pin for each teammate that is blocking an opponent from attacking king" do
+      test_opponent = double(color: "black", position: [3, 4])
+      test_teammate_one = double(color: "white", position: [1, 4])
+      test_teammate_two = double(color: "white", position: [3, 2])
+
+      allow(test_pin_finder.board).to receive(:closest_neighbors).with(anything).and_return([[], [test_teammate_one, test_teammate_two]])
+      allow(test_pin_finder.board).to receive(:directions).and_return ([[1, 0], [0, 1], [1, 1], [-1, 0], [0, -1], [-1, -1], [1, -1], [-1, 1]])
+      allow(test_pin_finder.board).to receive(:closest_neighbor_in_direction).with(anything).and_return(test_opponent)
+      allow(test_pin_finder.board).to receive(:get_piece).with(anything).and_return(test_opponent)
+      allow(test_pin_finder.board).to receive(:under_attack?).with(anything).and_return(true, false)
+
+      res = test_pin_finder.get_pins
+      expect(res.length).to eq(1)
+      expect(res.first.piece).to be(test_teammate_one)
+      expect(res.first.attacker).to be(test_opponent)
+    end
   end
 end
