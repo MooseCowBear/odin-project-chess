@@ -50,6 +50,7 @@ class MoveGenerator
   end
 
   def non_king_moves
+    moves = []
     pins = PinFinder.new(board, king).get_pins
     8.times do |row|
       8.times do |col|
@@ -73,7 +74,7 @@ class MoveGenerator
   def pin_moves(pin)
     moves = []
     squares_in_range(pin.attacker).each do |square|
-      if square == piece.position
+      if square == pin.position
         next
       elsif pin.valid_move?(to: square, from: pin.position, board: board)
         moves << Move.new(to: square, from: pin.position, piece: pin.piece, captures: board.get_piece(square))

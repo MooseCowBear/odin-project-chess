@@ -2,6 +2,7 @@ require_relative "../lib/move_generators/move_generator.rb"
 require_relative "../lib/pin/pin_finder"
 require_relative "../lib/move_generators/castle_generator"
 require_relative "../lib/moves/enpassant"
+require_relative "../lib/moves/move"
 
 describe MoveGenerator do
   describe ".for" do
@@ -44,11 +45,11 @@ describe MoveGenerator do
   describe "#moves" do
     it "combines king moves, non king moves, en passants, and castles" do
       test_generator = described_class.new(
-            double(color: "white", position: [2, 2]), 
-            double(), 
-            [], 
-            double()
-          )
+        double(color: "white", position: [2, 2]), 
+        double(), 
+        [], 
+        double()
+      )
 
       one = double("one")
       two = double("two")
@@ -72,10 +73,11 @@ describe MoveGenerator do
   describe "#king_moves" do
     it "returns king moves that are to squares that are not in check" do
       test_generator = described_class.new(
-            double(color: "white", position: [2, 2]), 
-            double(), 
-            [], 
-            double())
+        double(color: "white", position: [2, 2]), 
+        double(), 
+        [], 
+        double()
+      )
 
       move_one = double(to: [1, 1])
       move_two = double(to: [1, 2])
@@ -94,9 +96,9 @@ describe MoveGenerator do
       test_last_move = double(to: [4, 2], from: [6, 2], piece: double(color: "white", position: [4, 2], promotable: true))
       test_generator = described_class.new(
         double(color: "white", position: [2, 2]), 
-            double(), 
-            [], 
-            test_last_move
+        double(), 
+        [], 
+        test_last_move
       )
       one = double("one", position: [1, 1])
       two = double("two", position: [2, 2])
@@ -114,9 +116,9 @@ describe MoveGenerator do
       test_last_move = double(to: [4, 2], from: [6, 2], piece: double(color: "white", position: [4, 2], promotable: true))
       test_generator = described_class.new(
         double(color: "white", position: [2, 2]), 
-            double(), 
-            [], 
-            test_last_move
+        double(), 
+        [], 
+        test_last_move
       )
       allow(test_last_move).to receive(:check_enpassant?).and_return(false)
 
@@ -128,9 +130,9 @@ describe MoveGenerator do
       test_last_move = double(to: [4, 2], from: [6, 2], piece: double(color: "white", position: [4, 2], promotable: true))
       test_generator = described_class.new(
         double(color: "white", position: [2, 2]), 
-            double(), 
-            [], 
-            test_last_move
+        double(), 
+        [], 
+        test_last_move
       )
       allow(test_last_move).to receive(:check_enpassant?).and_return(true)
       allow(test_generator.board).to receive_message_chain(:column_neighbors, :filter).and_return([])
@@ -145,9 +147,9 @@ describe MoveGenerator do
       it "calls piece moves" do
         test_generator = described_class.new(
           double(color: "white", position: [2, 2]), 
-              double(), 
-              [], 
-              double()
+          double(), 
+          [], 
+          double()
         )
         test_pins = double()
         test_piece = double(position: [4, 4])
@@ -162,9 +164,9 @@ describe MoveGenerator do
       it "calls pin moves" do
         test_generator = described_class.new(
           double(color: "white", position: [2, 2]), 
-              double(), 
-              [], 
-              double()
+          double(), 
+          [], 
+          double()
         )
         test_piece = double(position: [4, 4])
         test_pin = double(piece: test_piece)
@@ -194,10 +196,91 @@ describe MoveGenerator do
   end
 
   describe "#pin_moves" do
-    
+    context "when there are no en passant pin moves" do
+      it "returns moves equal to the number of squares the piece has a valid move to" do
+        test_king = double(color: "white", position: [3, 3])
+        test_generator = described_class.new(
+          test_king, 
+          double(), 
+          [], 
+          double()
+        )
+
+        test_pin = double(piece: double(position: [1, 1]))
+        allow(test_pin).to receive(:attacker).and_return(double(position: [0, 0]))
+        allow(test_pin).to receive(:position).and_return([1, 1])
+        allow(test_generator).to receive(:squares_in_range).and_return([[0, 0], [1, 1], [2, 2]])
+        allow(test_pin).to receive(:valid_move?).with(anything).and_return(true)
+        allow(test_generator.board).to receive(:get_piece).and_return(nil)
+        allow(Move).to receive(:new).and_return(double())
+        allow(test_generator).to receive(:enpassant).and_return([])
+
+        res = test_generator.pin_moves(test_pin)
+        expect(res.length).to eq(2)
+      end
+    end
+
+    context "when there is an en passant pin moves" do
+      it "returns the en passant move in the array of pin moves" do
+        test_king = double(color: "white", position: [3, 3])
+        test_generator = described_class.new(
+          test_king, 
+          double(), 
+          [], 
+          double()
+        )
+
+        test_pin = double(piece: double(position: [1, 1]))
+        allow(test_pin).to receive(:attacker).and_return(double(position: [0, 0]))
+        allow(test_pin).to receive(:position).and_return([1, 1])
+        allow(test_generator).to receive(:squares_in_range).and_return([[0, 0], [1, 1]])
+        allow(test_pin).to receive(:valid_move?).with(anything).and_return(false)
+        ep_double = double()
+        allow(test_generator).to receive(:enpassant).and_return(ep_double)
+        allow(ep_double).to receive(:any?).and_return(true)
+        allow(ep_double).to receive(:select).and_return([double("ep move")])
+
+        res = test_generator.pin_moves(test_pin)
+        expect(res.length).to eq(1)
+      end
+    end
+
+    context "when there are no en passant pin moves and no valid pin moves" do
+      it "returns an empty array" do
+        test_king = double(color: "white", position: [3, 3])
+        test_generator = described_class.new(
+          test_king, 
+          double(), 
+          [], 
+          double()
+        )
+
+        test_pin = double(piece: double(position: [1, 1]))
+        allow(test_pin).to receive(:attacker).and_return(double(position: [0, 0]))
+        allow(test_pin).to receive(:position).and_return([1, 1])
+        allow(test_generator).to receive(:squares_in_range).and_return([[0, 0], [1, 1], [2, 2]])
+        allow(test_pin).to receive(:valid_move?).with(anything).and_return(false)
+        allow(test_generator).to receive(:enpassant).and_return([])
+
+        res = test_generator.pin_moves(test_pin)
+        expect(res.length).to eq(0)
+      end
+    end
   end
 
   describe "#non_king_moves" do
+    it "calls piece moves once for each square on the board" do
+      test_generator = described_class.new(
+        double(color: "white", position: [2, 2]), 
+        double(), 
+        [], 
+        double()
+      )
+      allow_any_instance_of(PinFinder).to receive(:get_pins).and_return([])
+      allow(test_generator.board).to receive(:get_piece).and_return(double())
+      expect(test_generator).to receive(:piece_moves).exactly(64).times
+      test_generator.non_king_moves
+    end
   end
 
   describe "#squares_in_range" do
@@ -205,10 +288,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when king column lower" do
         test_generator = described_class.new(
           double(color: "white", position: [1, 2]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [1, 6])
         allow(test_generator).to receive(:slope).and_return(0)
 
@@ -222,10 +305,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when king column higher" do
         test_generator = described_class.new(
           double(color: "white", position: [1, 6]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [1, 2])
         allow(test_generator).to receive(:slope).and_return(0)
 
@@ -241,10 +324,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when slope is negative" do
         test_generator = described_class.new(
           double(color: "white", position: [3, 3]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [1, 5])
         allow(test_generator).to receive(:slope).and_return(-1)
 
@@ -258,10 +341,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when slope is positive" do
         test_generator = described_class.new(
           double(color: "white", position: [3, 3]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [4, 4])
         allow(test_generator).to receive(:slope).and_return(1)
 
@@ -277,10 +360,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when king is lower row" do
         test_generator = described_class.new(
           double(color: "white", position: [3, 3]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [0, 3])
         allow(test_generator).to receive(:slope).and_return(nil)
 
@@ -294,10 +377,10 @@ describe MoveGenerator do
       it "returns squares that include opponent square and exclude king when king is higher row" do
         test_generator = described_class.new(
           double(color: "white", position: [0, 3]), 
-              double(), 
-              [], 
-              double
-          )
+          double(), 
+          [], 
+          double
+        )
         test_opponent = double(position: [3, 3])
         allow(test_generator).to receive(:slope).and_return(nil)
 
