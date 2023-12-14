@@ -1,6 +1,6 @@
-class ComputerPlayer
-  attr_reader :name
+require_relative "./player"
 
+class ComputerPlayer < Player
   def initialize
     super(name: "Hal")
   end
