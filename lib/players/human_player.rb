@@ -1,7 +1,8 @@
 require_relative "../move_converter"
+require_relative "./player"
 
-class HumanPlayer
-  attr_reader :name, :move_converter
+class HumanPlayer < Player
+  attr_reader :move_converter
 
   def initialize(name:)
     super
@@ -9,8 +10,7 @@ class HumanPlayer
   end
 
   def move(moves) 
-      move = gets.chomp
-      move_converter.converted_move(move, moves)
-    end
+    move = gets.chomp
+    move_converter.convert(move, moves)
   end
 end
