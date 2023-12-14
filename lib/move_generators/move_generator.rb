@@ -1,10 +1,10 @@
 require_relative "../modules/square_checker.rb"
-require_relative "../modules/euclid.rb"
+require_relative "../modules/slope.rb"
 require_relative "./castle_generator.rb"
 
 class MoveGenerator
   include SquareChecker
-  include Euclid
+  include Slope
 
   attr_reader :king, :board, :checks, :last_move
   attr_accessor :enpassant
