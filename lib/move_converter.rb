@@ -1,8 +1,5 @@
 class MoveConverter
-  def initialize
-  end
-
-  def converted_move(input, moves)
+  def convert(input, moves)
     return nil if input.length != 4
     moves.select { |move| move.from == start_idx(input) && move.to == end_idx(input) }.first # returns nil if empty
   end
@@ -16,7 +13,7 @@ class MoveConverter
   end
 
   def convert_column(char)
-    char.ord - 97
+    char.downcase.ord - 97
   end
 
   def convert_row(char)
