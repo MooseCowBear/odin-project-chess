@@ -1,13 +1,16 @@
-class HumanPlayer
-  attr_reader :name 
+require_relative "../move_converter"
 
-  def initialize(name)
-    @name = name
+class HumanPlayer
+  attr_reader :name, :move_converter
+
+  def initialize(name:)
+    super
+    @move_converter = MoveConverter.new
   end
 
-  def self.get_player(color)
-    puts "Enter a name for person playing #{color}:"
-    name = gets.chomp
-    HumanPlayer.new(name)
+  def move(moves) 
+      move = gets.chomp
+      move_converter.converted_move(move, moves)
+    end
   end
 end
