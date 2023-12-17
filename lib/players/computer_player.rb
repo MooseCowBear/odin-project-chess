@@ -8,4 +8,8 @@ class ComputerPlayer < Player
   def move(moves) # this is returning the move already in form that chess wants
     move = moves.sample
   end
+
+  def promotion_choice
+    "queen"
+  end
 end

@@ -13,4 +13,8 @@ class HumanPlayer < Player
     move = gets.chomp
     move_converter.convert(move, moves)
   end
+
+  def promotion_choice
+    gets.chomp.downcase
+  end
 end
