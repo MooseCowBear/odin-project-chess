@@ -70,4 +70,23 @@ class Board
   def directions
     @@directions
   end
+
+  def print 
+    puts "    a   b   c   d   e   f   g   h  "
+    puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
+  
+    row_label = 8
+    8.times do |row_idx|
+      line = "#{row_label} |"
+
+      board[row_idx].each do |elem|
+        line +=  "#{elem.to_s}"
+        line += elem ? " |" : "  |"
+      end
+      puts line
+      puts "   ___ ___ ___ ___ ___ ___ ___ ___ "
+      
+      row_label -= 1
+    end
+  end
 end
