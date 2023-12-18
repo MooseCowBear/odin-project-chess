@@ -5,9 +5,18 @@ describe PawnPromoter do
 
   describe "#promote" do
     it "updates the board if move was promotable" do
+      allow(test_promoter).to receive(:promote?).and_return(true)
+      allow(test_promoter.move).to receive(:to)
+      expect(test_promoter).to receive(:get_promotion_choice)
+      expect(test_promoter).to receive(:new_piece)
+      expect(test_promoter.board).to receive(:update)
+      test_promoter.promote
     end
 
     it "does nothing if move not promotable" do
+      allow(test_promoter).to receive(:promote?).and_return(false)
+      expect(test_promoter.board).not_to receive(:update)
+      test_promoter.promote
     end
   end
 

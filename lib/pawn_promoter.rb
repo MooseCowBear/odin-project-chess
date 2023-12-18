@@ -1,6 +1,6 @@
 class PawnPromoter 
   attr_reader :move, :board, :player
-  
+
   def initialize(move, board, player)
     @move = move
     @board = board
@@ -8,7 +8,7 @@ class PawnPromoter
   end
 
   def promote
-    if move.promote?
+    if promote?
       board.update(position: move.to, value: new_piece(get_promotion_choice, move.to))
     end
   end
