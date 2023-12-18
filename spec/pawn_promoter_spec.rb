@@ -1,4 +1,8 @@
 require_relative "../lib/pawn_promoter"
+require_relative "../lib/pieces/queen"
+require_relative "../lib/pieces/bishop"
+require_relative "../lib/pieces/rook"
+require_relative "../lib/pieces/knight"
 
 describe PawnPromoter do
   subject(:test_promoter) { described_class.new(double(), double(), double()) }
@@ -54,16 +58,28 @@ describe PawnPromoter do
   end
 
   describe "#new_piece" do
-    it "returns new queen instance when choice is queens" do
+    it "creates new queen instance when choice is queens" do
+      allow(test_promoter.player).to receive(:color)
+      expect(Queen).to receive(:new)
+      test_promoter.new_piece("queen", [0, 0])
     end
 
-    it "returns new bishop instance when choice is bishop" do
+    it "creates new bishop instance when choice is bishop" do
+      allow(test_promoter.player).to receive(:color)
+      expect(Bishop).to receive(:new)
+      test_promoter.new_piece("bishop", [0, 0])
     end
 
-    it "returns new knight instance when choice is knight" do
+    it "creates new knight instance when choice is knight" do
+      allow(test_promoter.player).to receive(:color)
+      expect(Knight).to receive(:new)
+      test_promoter.new_piece("knight", [0, 0])
     end
 
-    it "returns new rook instance when choice is rook" do
+    it "creates new rook instance when choice is rook" do
+      allow(test_promoter.player).to receive(:color)
+      expect(Rook).to receive(:new)
+      test_promoter.new_piece("rook", [0, 0])
     end
   end
 end

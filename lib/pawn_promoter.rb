@@ -1,3 +1,8 @@
+require_relative "./pieces/queen"
+require_relative "./pieces/bishop"
+require_relative "./pieces/rook"
+require_relative "./pieces/knight"
+
 class PawnPromoter 
   attr_reader :move, :board, :player
 
@@ -34,13 +39,13 @@ class PawnPromoter
   def new_piece(choice, position) 
     case choice
     when "queen"
-      Queen.new(color: king.color, position: position)
+      Queen.new(color: player.color, position: position)
     when "bishop"
-      Bishop.new(color: king.color, position: position)
+      Bishop.new(color: player.color, position: position)
     when "rook"
-      Rook.new(color: king.color, position: position)
+      Rook.new(color: player.color, position: position)
     else
-      Knight.new(color: king.color, position: position)
+      Knight.new(color: player.color, position: position)
     end
   end
 end
