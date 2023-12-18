@@ -38,6 +38,12 @@ describe PawnPromoter do
 
   describe "#get_promotion_choice" do
     it "asks for player's choice until provided a valid choice" do
+      allow($stdin).to receive(:gets)
+      allow(test_promoter.player).to receive(:promotion_choice)
+      allow(test_promoter).to receive(:valid_promotion_choice?).and_return(false, false, true)
+      expect(STDOUT).to receive(:puts).with("How would you like to promote your pawn?")
+      expect(STDOUT).to receive(:puts).with("The options are: Queen, Bishop, Rook, Knight.").exactly(3).times
+      test_promoter.get_promotion_choice
     end
   end
 
