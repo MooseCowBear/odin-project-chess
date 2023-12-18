@@ -1,8 +1,8 @@
-require_relative "../modules/euclid.rb"
+require_relative "../modules/slope.rb"
 require_relative "./piece"
 
 class Rook < Piece
-  include Euclid
+  include Slope
 
   @@offsets = [[0, 1], [0, -1], [1, 0], [-1, 0]]
   @@slopes = [0.0, nil]
