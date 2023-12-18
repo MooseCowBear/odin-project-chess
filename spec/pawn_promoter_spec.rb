@@ -13,9 +13,13 @@ describe PawnPromoter do
 
   describe "#promote?" do
     it "returns true if move was promotable" do
+      allow(test_promoter.move).to receive(:promote?).and_return(true)
+      expect(test_promoter.promote?).to be(true)
     end
 
     it "returns false if move was not promotable" do
+      allow(test_promoter.move).to receive(:promote?).and_return(false)
+      expect(test_promoter.promote?).to be(false)
     end
   end
 

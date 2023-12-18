@@ -1,4 +1,6 @@
 class PawnPromoter 
+  attr_reader :move, :board, :player
+  
   def initialize(move, board, player)
     @move = move
     @board = board
