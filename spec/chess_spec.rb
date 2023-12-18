@@ -125,4 +125,94 @@ describe Chess do
       expect(test_chess.stalemate?).to be(true)
     end
   end
+
+  describe "#record_winner" do
+    it "records a winner if checkmate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      white_player = double()
+      black_player = double()
+      test_chess.player_white = white_player
+      test_chess.player_black = black_player
+      allow(test_chess).to receive(:checkmate?).and_return(true)
+      test_chess.record_winner
+      expect(test_chess.winner).to be(black_player)
+    end
+
+    it "does not record winner if not checkmate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      white_player = double()
+      black_player = double()
+      test_chess.player_white = white_player
+      test_chess.player_black = black_player
+      allow(test_chess).to receive(:checkmate?).and_return(false)
+      test_chess.record_winner
+      expect(test_chess.winner).to eq(nil)
+    end
+  end
+
+  describe "#announce_check" do
+    it "announces check if check" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:check?).and_return(true)
+      expect(STDOUT).to receive(:puts).with("Check")
+      test_chess.announce_check
+    end
+
+    it "does not announce check" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:check?).and_return(false)
+      expect(STDOUT).not_to receive(:puts)
+      test_chess.announce_check
+    end
+  end
+
+  describe "#announce_result" do
+    it "calls annouce ending state and announce winner" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(test_chess).to receive(:announce_ending_state)
+      expect(test_chess).to receive(:announce_winner)
+      test_chess.announce_result
+    end
+  end
+
+  describe "#announce_ending_state" do
+    it "outputs 'Stalemate' if stalemate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:stalemate?).and_return(true)
+      expect(STDOUT).to receive(:puts).with("Stalemate")
+      test_chess.announce_ending_state
+    end
+
+    it "outputs 'Checkmate' if not stalemate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:stalemate?).and_return(false)
+      expect(STDOUT).to receive(:puts).with("Checkmate")
+      test_chess.announce_ending_state
+    end
+  end
+
+  describe "#announce_winner" do
+    it "congratulates winner if winner" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_winner = double(name: "Bob")
+      test_chess.winner = test_winner
+      expect(STDOUT).to receive(:puts).with("Congratulations, #{test_winner.name}!")
+      test_chess.announce_winner
+    end
+
+    it "announces draw if no winner" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(STDOUT).to receive(:puts).with("It's a draw.")
+      test_chess.announce_winner
+    end
+  end
 end

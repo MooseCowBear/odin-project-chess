@@ -45,4 +45,35 @@ class Chess
   def current_player 
     white_turn ? player_white : player_black
   end
+
+  def record_winner
+    if checkmate?
+      @winner = white_turn ? player_black : player_white
+    end
+  end
+
+  def announce_check
+    puts "Check" if check?
+  end
+
+  def announce_result
+    announce_ending_state
+    announce_winner
+  end
+
+  def announce_ending_state
+    if stalemate?
+      puts "Stalemate"
+    else
+      puts "Checkmate"
+    end
+  end
+
+  def announce_winner
+    unless winner.nil?
+      puts "Congratulations, #{winner.name}!"
+    else 
+      puts "It's a draw."
+    end
+  end
 end
