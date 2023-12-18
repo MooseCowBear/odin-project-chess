@@ -4,7 +4,7 @@ require_relative "./player"
 class HumanPlayer < Player
   attr_reader :move_converter
 
-  def initialize(name:)
+  def initialize(name:, color:)
     super
     @move_converter = MoveConverter.new
   end
