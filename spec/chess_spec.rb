@@ -64,4 +64,65 @@ describe Chess do
       expect(test_chess.current_player).to be(black_player)
     end
   end
+
+  describe "#check?" do
+    it "returns true if checks array not empty" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_chess.checks = [double()]
+      expect(test_chess.check?).to be(true)
+    end
+
+    it "returns false if checks array empty" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(test_chess.check?).to be(false)
+    end
+  end
+
+  describe "#checkmate?" do
+    it "returns false if available moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_chess.moves_available = [double()]
+      allow(test_chess).to receive(:check?).and_return(true)
+      expect(test_chess.checkmate?).to be(false)
+    end
+
+    it "returns false if no checks" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(test_chess.checkmate?).to be(false)
+    end
+
+    it "returns true if no available moves and check" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:check?).and_return(true)
+      expect(test_chess.checkmate?).to be(true)
+    end
+  end
+
+  describe "#stalemate?" do
+    it "returns false if check" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:check?).and_return(true)
+      expect(test_chess.stalemate?).to be(false)
+    end
+
+    it "returns false if available moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_chess.moves_available = [double()]
+      expect(test_chess.stalemate?).to be(false)
+    end
+
+    it "returns true if no check and no available moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:check?).and_return(false)
+      expect(test_chess.stalemate?).to be(true)
+    end
+  end
 end

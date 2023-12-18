@@ -22,6 +22,18 @@ class Chess
     setup
   end
 
+  def stalemate?
+    moves_available.empty? && !check?
+  end
+
+  def checkmate?
+    moves_available.empty? && check?
+  end
+
+  def check? 
+    !checks.empty?
+  end
+
   def update_turn
     @white_turn = !white_turn
   end
