@@ -26,7 +26,7 @@ class PawnPromoter
   end
 
   def valid_promotion_choice?(input)
-    ["queen", "bishop", "rook", "knight"].include?(input)
+    ["queen", "bishop", "rook", "knight"].include?(input.downcase)
   end
 
   def new_piece(choice, position) 
