@@ -186,4 +186,17 @@ class Chess
     end
     false
   end
+
+  def self.play 
+    game = nil
+    unfinished = Chess.unfinished_games
+
+    if Chess.load_game?(unfinished)
+      game = Chess.get_game_choice(unfinished)
+    else
+      game = Chess.new
+    end
+
+    game.play_game
+  end
 end

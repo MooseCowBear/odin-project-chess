@@ -460,4 +460,33 @@ describe Chess do
       Chess.load_game?(test_games)
     end
   end
+
+  describe ".play" do
+    it "loads unfinished games" do
+      allow(Chess).to receive(:load_game?).and_return(true)
+      test_game = double()
+      allow(Chess).to receive(:get_game_choice).and_return(test_game)
+      allow(test_game).to receive(:play_game)
+      expect(Chess).to receive(:unfinished_games)
+      Chess.play
+    end
+
+    it "loads game to play if load game" do
+      allow(Chess).to receive(:unfinished_games)
+      allow(Chess).to receive(:load_game?).and_return(true)
+      test_game = double()
+      allow(Chess).to receive(:get_game_choice).and_return(test_game)
+      expect(test_game).to receive(:play_game)
+      Chess.play
+    end
+
+    it "creates a new game to play if not load game" do
+      allow(Chess).to receive(:unfinished_games)
+      allow(Chess).to receive(:load_game?).and_return(false)
+      test_game = double()
+      expect(Chess).to receive(:new).and_return(test_game)
+      expect(test_game).to receive(:play_game)
+      Chess.play
+    end
+  end
 end
