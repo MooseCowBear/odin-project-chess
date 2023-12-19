@@ -266,4 +266,14 @@ describe Chess do
       expect(test_chess.legal?(test_move)).to be(false)
     end
   end
+
+  describe "#update_available_moves" do
+    it "asks move generator for moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_generator = double()
+      expect(test_generator).to receive(:moves)
+      test_chess.update_available_moves(test_generator)
+    end
+  end
 end

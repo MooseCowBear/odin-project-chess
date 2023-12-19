@@ -93,4 +93,8 @@ class Chess
   def legal?(move) 
     moves_available.include?(move)
   end
+
+  def update_available_moves(move_generator)
+    @moves_available = move_generator.moves
+  end
 end
