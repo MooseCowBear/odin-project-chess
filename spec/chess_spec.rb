@@ -412,4 +412,23 @@ describe Chess do
       test_chess.play_game
     end
   end
+
+  describe ".get_game_choice" do
+    it "asks for game choice until valid choice is made" do
+      allow(Chess).to receive(:display_game_choices)
+      allow($stdin).to receive(:gets).and_return("8", "1")
+      allow(Chess).to receive(:validate_choice).and_return(false, true)
+      expect(STDOUT).to receive(:puts).with("Enter the number of the game you would like to load.").twice
+      Chess.get_game_choice([double(), double()])
+    end
+
+    it "returns the chosen game" do
+      allow(Chess).to receive(:display_game_choices)
+      allow($stdin).to receive(:gets).and_return("1")
+      allow(Chess).to receive(:validate_choice).and_return(true)
+      expect(STDOUT).to receive(:puts).with("Enter the number of the game you would like to load.")
+      test_game = double()
+      expect(Chess.get_game_choice([test_game])).to be(test_game)
+    end
+  end
 end

@@ -157,4 +157,16 @@ class Chess
     print_board("final")
     Chess.save_game(self)
   end
+
+  def self.get_game_choice(unfinished_games)
+    loop do
+      puts "Enter the number of the game you would like to load."
+      Chess.display_game_choices(unfinished_games)
+      choice = gets.chomp.to_i
+
+      if Chess.validate_choice(choice, unfinished_games)
+        return unfinished_games[choice - 1]
+      end
+    end
+  end
 end
