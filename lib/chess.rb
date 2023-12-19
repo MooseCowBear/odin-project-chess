@@ -97,4 +97,14 @@ class Chess
   def update_available_moves(move_generator)
     @moves_available = move_generator.moves
   end
+
+  def update_checks
+    opponents, _ = board.closest_neighbors(square: king.position, alliance: king) 
+    @checks = checks_for_square(
+      board: board, 
+      square: king.position, 
+      opponents: opponents, 
+      alliance: king
+    )
+  end
 end

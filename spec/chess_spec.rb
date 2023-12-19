@@ -276,4 +276,31 @@ describe Chess do
       test_chess.update_available_moves(test_generator)
     end
   end
+
+  describe "#update_checks" do
+    it "asks board for closest neighbors and calls checks for squares on opponents" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_board = double()
+      test_king = double(position: [0, 0], color: "white")
+      test_chess.white_king = test_king
+      test_chess.board = test_board 
+      expect(test_board).to receive(:closest_neighbors)
+      expect(test_chess).to receive(:checks_for_square)
+      test_chess.update_checks
+    end
+  end
+
+  it "updates checks with the result" do
+    allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_board = double()
+      test_king = double(position: [0, 0], color: "white")
+      test_chess.white_king = test_king
+      test_chess.board = test_board 
+      allow(test_board).to receive(:closest_neighbors)
+      allow(test_chess).to receive(:checks_for_square).and_return([double()])
+      test_chess.update_checks
+      expect(test_chess.checks.length).to eq(1)
+  end
 end
