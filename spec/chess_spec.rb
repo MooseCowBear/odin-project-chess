@@ -424,11 +424,40 @@ describe Chess do
 
     it "returns the chosen game" do
       allow(Chess).to receive(:display_game_choices)
-      allow($stdin).to receive(:gets).and_return("1")
+      allow(STDIN).to receive(:gets).and_return("1")
       allow(Chess).to receive(:validate_choice).and_return(true)
       expect(STDOUT).to receive(:puts).with("Enter the number of the game you would like to load.")
       test_game = double()
       expect(Chess.get_game_choice([test_game])).to be(test_game)
+    end
+  end
+
+  describe ".load_game?" do
+    it "returns false if no games to load" do
+      test_games = []
+      expect(Chess.load_game?(test_games)).to be(false)
+    end
+
+    it "returns false if user inputs 'n' or 'no'" do
+      test_games = [double()]
+      allow(STDOUT).to receive(:puts)
+      allow(STDIN).to receive(:gets).and_return("no")
+      expect(Chess.load_game?(test_games)).to be(false)
+    end
+
+    it "returns true if user inputs 'y' or 'yes'" do
+      test_games = [double()]
+      allow(STDOUT).to receive(:puts)
+      allow(STDIN).to receive(:gets).and_return("y")
+      expect(Chess.load_game?(test_games)).to be(true)
+    end
+
+    it "asks for choice until user inputs yes or no" do
+      test_games = [double()]
+      allow(STDIN).to receive(:gets).and_return("blah", "yes")
+      expect(STDOUT).to receive(:puts).with("Would you like to load a saved game? (y/n)").twice
+      expect(STDOUT).to receive(:puts).with("Answer must be yes or no.")
+      Chess.load_game?(test_games)
     end
   end
 end

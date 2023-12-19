@@ -169,4 +169,21 @@ class Chess
       end
     end
   end
+
+  def self.load_game?(unfinished_games)
+    unless unfinished_games.empty?
+      loop do
+        puts "Would you like to load a saved game? (y/n)"
+        load = STDIN.gets.chomp.downcase # why did this require STDIN when above did not?
+        if load == 'y' || load == 'yes'
+          return true
+        elsif load == 'n' || load == 'no'
+          return false
+        else 
+          puts "Answer must be yes or no."
+        end
+      end 
+    end
+    false
+  end
 end
