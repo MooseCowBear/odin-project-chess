@@ -1,7 +1,6 @@
 require_relative '../lib/chess.rb'
 
 describe Chess do
-
   describe "#update_turn" do
     it "sets turn_white instance variable to false if true" do
       allow_any_instance_of(Chess).to receive(:setup)
@@ -343,6 +342,38 @@ describe Chess do
       expect(test_chess).to receive(:update_checks)
       expect(test_chess).to receive(:update_available_moves)
       test_chess.take_turn
+    end
+  end
+
+  describe "#display_turns" do
+    it "calls take_turn for as long as not checkmate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:checkmate?).and_return(false, false, true)
+      allow(test_chess).to receive(:stalemate?).and_return(false)
+      allow(Chess).to receive(:ask_to_save)
+      expect(test_chess).to receive(:take_turn).twice
+      test_chess.display_turns
+    end
+
+    it "calls taks_turn for as long as not stalemate" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:checkmate?).and_return(false)
+      allow(test_chess).to receive(:stalemate?).and_return(false, false, false, true)
+      allow(Chess).to receive(:ask_to_save)
+      expect(test_chess).to receive(:take_turn).exactly(3).times
+      test_chess.display_turns
+    end
+
+    it "asks to save game after every turn" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      allow(test_chess).to receive(:checkmate?).and_return(false)
+      allow(test_chess).to receive(:stalemate?).and_return(false, false, true)
+      allow(test_chess).to receive(:take_turn)
+      expect(Chess).to receive(:ask_to_save).twice
+      test_chess.display_turns
     end
   end
 end

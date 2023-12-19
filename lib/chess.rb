@@ -136,4 +136,11 @@ class Chess
       )
     )
   end
+
+  def display_turns
+    until checkmate? || stalemate?
+      take_turn
+      Chess.ask_to_save(self)
+    end
+  end
 end
