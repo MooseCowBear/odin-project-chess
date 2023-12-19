@@ -376,4 +376,26 @@ describe Chess do
       test_chess.display_turns
     end
   end
+
+  describe "#print_board" do
+    it "asks board to print" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_board = double()
+      test_chess.board = test_board
+      allow(STDOUT).to receive(:puts)
+      expect(test_board).to receive(:print)
+      test_chess.print_board("current")
+    end
+
+    it "announces board state" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_board = double()
+      test_chess.board = test_board
+      allow(test_board).to receive(:print)
+      expect(STDOUT).to receive(:puts).with("\nThe current board is: \n")
+      test_chess.print_board("current")
+    end
+  end
 end

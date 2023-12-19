@@ -143,4 +143,9 @@ class Chess
       Chess.ask_to_save(self)
     end
   end
+
+  def print_board(state)
+    puts "\nThe #{state} board is: \n" 
+    board.print 
+  end
 end
