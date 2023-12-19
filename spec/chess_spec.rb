@@ -249,4 +249,21 @@ describe Chess do
       test_chess.perform_promotion(test_promoter)
     end
   end
+
+  describe "#legal?" do
+    it "returns true if move is in available moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_move = double()
+      test_chess.moves_available << test_move
+      expect(test_chess.legal?(test_move)).to be(true)
+    end
+
+    it "returns false if move not in available moves" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_move = double()
+      expect(test_chess.legal?(test_move)).to be(false)
+    end
+  end
 end

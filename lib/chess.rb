@@ -89,4 +89,8 @@ class Chess
   def perform_promotion(promoter)
     promoter.promote
   end
+
+  def legal?(move) 
+    moves_available.include?(move)
+  end
 end
