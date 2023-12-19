@@ -398,4 +398,18 @@ describe Chess do
       test_chess.print_board("current")
     end
   end
+
+  describe "#play_game" do
+    it "calls each method that makes up playing a game" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(test_chess).to receive(:print_board).with("current")
+      expect(test_chess).to receive(:display_turns)
+      expect(test_chess).to receive(:record_winner)
+      expect(test_chess).to receive(:announce_result)
+      expect(test_chess).to receive(:print_board).with("final")
+      expect(Chess).to receive(:save_game)
+      test_chess.play_game
+    end
+  end
 end

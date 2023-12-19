@@ -148,4 +148,13 @@ class Chess
     puts "\nThe #{state} board is: \n" 
     board.print 
   end
+
+  def play_game
+    print_board("current")
+    display_turns
+    record_winner
+    announce_result
+    print_board("final")
+    Chess.save_game(self)
+  end
 end
