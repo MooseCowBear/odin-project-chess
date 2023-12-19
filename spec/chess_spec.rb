@@ -215,4 +215,38 @@ describe Chess do
       test_chess.announce_winner
     end
   end
+
+  describe "#make_move" do
+    it "asks move to execute and adds move to moves taken array " do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_move = double()
+      expect(test_move).to receive(:execute)
+      test_chess.make_move(test_move)
+      expect(test_chess.moves_taken.include?(test_move)).to be(true)
+    end
+  end
+
+  describe "#announce_move" do
+    it "prints player and move to console" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_player = double(name: "Harry")
+      allow(test_chess).to receive(:current_player).and_return(test_player)
+      test_move = double()
+      allow(test_move).to receive(:to_s).and_return("test move")
+      expect(STDOUT).to receive(:puts).with("#{test_player.name} moved test move.")
+      test_chess.announce_move(test_move)
+    end
+  end
+
+  describe "#perform_promotion" do
+    it "asks promoter to promote" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_promoter = double()
+      expect(test_promoter).to receive(:promote)
+      test_chess.perform_promotion(test_promoter)
+    end
+  end
 end

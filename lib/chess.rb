@@ -76,4 +76,17 @@ class Chess
       puts "It's a draw."
     end
   end
+
+  def make_move(move)
+    move.execute(board)
+    @moves_taken << move
+  end
+
+  def announce_move(move) 
+    puts "#{current_player.name} moved #{move}."
+  end
+
+  def perform_promotion(promoter)
+    promoter.promote
+  end
 end
