@@ -1,6 +1,8 @@
 require_relative "./modules/square_checker"
 require_relative "./modules/setup"
 require_relative "./modules/serialize"
+require_relative "./pawn_promoter"
+require_relative "./move_generators/move_generator"
 
 
 class Chess
@@ -115,5 +117,23 @@ class Chess
       return move if legal?(move)
       puts "I'm sorry, that was not a legal move."
     end
+  end
+
+  def take_turn
+    announce_check
+    move = get_player_move
+    make_move(move)
+    announce_move(move)
+    perform_promotion(PawnPromoter.new(move, board, current_player))
+    update_turn
+    update_checks
+    update_available_moves(
+      MoveGenerator.for(
+        king: king, 
+        board: board, 
+        checks: checks, 
+        last_move: moves_taken.last
+      )
+    )
   end
 end

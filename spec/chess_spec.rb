@@ -329,4 +329,20 @@ describe Chess do
       expect(test_chess.get_player_move).to be(test_move)
     end
   end
+
+  describe "#take_turn" do
+    it "calls each method that makes up a turn" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      expect(test_chess).to receive(:announce_check)
+      expect(test_chess).to receive(:get_player_move)
+      expect(test_chess).to receive(:make_move)
+      expect(test_chess).to receive(:announce_move)
+      expect(test_chess).to receive(:perform_promotion)
+      expect(test_chess).to receive(:update_turn)
+      expect(test_chess).to receive(:update_checks)
+      expect(test_chess).to receive(:update_available_moves)
+      test_chess.take_turn
+    end
+  end
 end
