@@ -11,7 +11,8 @@ class Chess
   extend Serialize 
 
   attr_reader :played_on
-  attr_accessor :white_king, :black_king, :player_white, :player_black, :white_turn, :board, :moves_available, :moves_taken, :winner, :checks
+  attr_accessor :white_king, :black_king, :player_white, :player_black, 
+    :white_turn, :board, :moves_available, :moves_taken, :winner, :checks
 
   def initialize
     @played_on = Time.now
