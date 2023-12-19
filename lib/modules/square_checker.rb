@@ -3,12 +3,24 @@ require_relative "../pieces/knight.rb"
 module SquareChecker
   def checks_for_square(board:, square:, opponents:, alliance:) 
     knight_checks(square: square, board: board, alliance: alliance)
-      .concat(non_knight_checks(square: square, board: board, opponents:  opponents, alliance: alliance))
+      .concat(
+        non_knight_checks(
+          square: square, 
+          board: board, 
+          opponents: opponents, 
+          alliance: alliance
+        )
+      )
   end
 
   def unchecked_square?(square:, board:, alliance:)
     opponents, _ = board.closest_neighbors(square: square, alliance: alliance)
-    checks_for_square(board: board, square: square, opponents: opponents, alliance: alliance).empty?
+    checks_for_square(
+      board: board, 
+      square: square, 
+      opponents: opponents, 
+      alliance: alliance
+    ).empty?
   end
 
   def non_knight_checks(square:, board:, opponents:, alliance:)

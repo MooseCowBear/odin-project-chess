@@ -38,7 +38,7 @@ class Pawn < Piece
 
     distance.times do |i|
       to = [from[0] + offset[0] * (i + 1), from[1] + offset[1]]
-      if board.on_board?(to) && !board.get_piece(to) # is the square empty
+      if board.on_board?(to) && !board.get_piece(to) 
         moves << Move.new(from: from, to: to, piece: self, captures: nil)
       else
         break 

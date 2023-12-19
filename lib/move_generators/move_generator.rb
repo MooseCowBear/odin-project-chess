@@ -43,7 +43,13 @@ class MoveGenerator
       end
       neighbors.each do |neighbor| 
         to = [last_move.to[0] + neighbor.direction, last_move.to[1]] 
-        @enpassant << EnPassant.new(from: neighbor.position, to: to, piece: neighbor, additional_from: last_move.to, captures: last_move.piece)
+        @enpassant << EnPassant.new(
+          from: neighbor.position, 
+          to: to, 
+          piece: neighbor, 
+          additional_from: last_move.to, 
+          captures: last_move.piece
+        )
       end
     end
     @enpassant
@@ -77,7 +83,12 @@ class MoveGenerator
       if square == pin.position
         next
       elsif pin.valid_move?(to: square, from: pin.position, board: board)
-        moves << Move.new(to: square, from: pin.position, piece: pin.piece, captures: board.get_piece(square))
+        moves << Move.new(
+          to: square, 
+          from: pin.position, 
+          piece: pin.piece, 
+          captures: board.get_piece(square)
+        )
       elsif enpassant.any? { |ep| ep.piece == pin.piece && ep.to == square } 
         moves << enpassant.select { |ep| ep.piece && ep.to == square }.first
       end

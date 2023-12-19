@@ -14,7 +14,10 @@ class PinFinder
     pp teammates
 
     teammates.each do |teammate|
-      possible_attack = board.closest_neighbor_in_direction(square: teammate.position, direction: walkout_direction(teammate))
+      possible_attack = board.closest_neighbor_in_direction(
+        square: teammate.position, 
+        direction: walkout_direction(teammate)
+      )
       if board.under_attack?(from: possible_attack, to: king.position, alliance: king)
         pins << Pin.new(piece: teammate, attacker: board.get_piece(possible_attack))
       end

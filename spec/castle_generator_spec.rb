@@ -1,4 +1,4 @@
-require_relative "../lib/move_generators/castles_generator"
+require_relative "../lib/move_generators/castle_generator"
 
 describe CastleGenerator do
   describe "#safe_passage?" do

@@ -25,9 +25,9 @@ class Rook < Piece
         if valid_move?(from: from, to: to, board: board)
           moves << Move.new(from: from, to: to, piece: self, captures: board.get_piece(to))
           to = [to[0] + offset[0], to[1] + offset[1]]
-          break if opponent?(board.get_piece(to)) # hit opponent
+          break if opponent?(board.get_piece(to)) 
         else
-          break # hit a teammate or end of board
+          break 
         end
       end
     end

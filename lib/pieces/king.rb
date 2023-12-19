@@ -11,10 +11,6 @@ class King < Piece
     white? ? "\u{2654}" : "\u{265A}"
   end
 
-  def initial_position # maybe don't need this
-    white? ? [7, 4] : [0, 4]
-  end
-
   def valid_move?(from:, to:, board:)
     @@offsets.include?([to[0] - from[0], to[1] - from[1]]) && !teammate?(board.get_piece(to)) 
   end

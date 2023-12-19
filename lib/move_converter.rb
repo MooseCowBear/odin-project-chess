@@ -1,7 +1,7 @@
 class MoveConverter
   def convert(input, moves)
     return nil if input.length != 4
-    moves.select { |move| move.from == start_idx(input) && move.to == end_idx(input) }.first # returns nil if empty
+    moves.select { |move| move.from == start_idx(input) && move.to == end_idx(input) }.first 
   end
 
   def start_idx(input)

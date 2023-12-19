@@ -15,7 +15,7 @@ class Move
   def execute(board)
     board.update(position: from, value: nil)
     board.update(position: to, value: piece)
-    piece.position = to #update the piece to its new position
+    piece.position = to 
     piece.moved = true 
   end
 

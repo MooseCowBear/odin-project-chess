@@ -5,7 +5,7 @@ class ComputerPlayer < Player
     super(name: "Hal", color: "black")
   end
 
-  def move(moves) # this is returning the move already in form that chess wants
+  def move(moves)
     move = moves.sample
   end
 

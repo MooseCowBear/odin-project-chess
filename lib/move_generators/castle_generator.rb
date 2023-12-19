@@ -78,7 +78,9 @@ class CastleGenerator
     end
 
     min.upto(max) do |col| 
-      return false unless unchecked_square?(square: [row, col], board: board, alliance: king) 
+      unless unchecked_square?(square: [row, col], board: board, alliance: king) 
+        return false
+      end
     end
     true
   end
