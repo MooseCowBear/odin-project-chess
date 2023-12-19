@@ -107,4 +107,13 @@ class Chess
       alliance: king
     )
   end
+
+  def get_player_move
+    loop do 
+      puts "Enter a move for #{current_player.name}."
+      move = current_player.move(moves_available)
+      return move if legal?(move)
+      puts "I'm sorry, that was not a legal move."
+    end
+  end
 end

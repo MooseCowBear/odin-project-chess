@@ -289,10 +289,9 @@ describe Chess do
       expect(test_chess).to receive(:checks_for_square)
       test_chess.update_checks
     end
-  end
 
-  it "updates checks with the result" do
-    allow_any_instance_of(Chess).to receive(:setup)
+    it "updates checks with the result" do
+      allow_any_instance_of(Chess).to receive(:setup)
       test_chess = described_class.new
       test_board = double()
       test_king = double(position: [0, 0], color: "white")
@@ -302,5 +301,32 @@ describe Chess do
       allow(test_chess).to receive(:checks_for_square).and_return([double()])
       test_chess.update_checks
       expect(test_chess.checks.length).to eq(1)
+    end
+  end
+
+  describe "#get_player_move" do
+    it "asks player for move until legal move is provided" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_player = double(name: "Sally")
+      allow(test_chess).to receive(:current_player).and_return(test_player)
+      allow(test_player).to receive(:move)
+      allow(test_chess).to receive(:legal?).and_return(false, true)
+      expect(STDOUT).to receive(:puts).with("Enter a move for #{test_player.name}.").twice
+      expect(STDOUT).to receive(:puts).with("I'm sorry, that was not a legal move.").once
+      test_chess.get_player_move
+    end
+
+    it "returns move" do
+      allow_any_instance_of(Chess).to receive(:setup)
+      test_chess = described_class.new
+      test_player = double(name: "Sally")
+      allow(test_chess).to receive(:current_player).and_return(test_player)
+      test_move = double()
+      allow(test_player).to receive(:move).and_return(test_move)
+      allow(test_chess).to receive(:legal?).and_return(true)
+      allow(STDOUT).to receive(:puts)
+      expect(test_chess.get_player_move).to be(test_move)
+    end
   end
 end
