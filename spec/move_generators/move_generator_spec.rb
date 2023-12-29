@@ -1,8 +1,8 @@
-require_relative "../lib/move_generators/move_generator.rb"
-require_relative "../lib/pin/pin_finder"
-require_relative "../lib/move_generators/castle_generator"
-require_relative "../lib/moves/enpassant"
-require_relative "../lib/moves/move"
+require_relative "../../lib/move_generators/move_generator.rb"
+require_relative "../../lib/pin/pin_finder"
+require_relative "../../lib/move_generators/castle_generator"
+require_relative "../../lib/moves/enpassant"
+require_relative "../../lib/moves/move"
 
 describe MoveGenerator do
   describe ".for" do

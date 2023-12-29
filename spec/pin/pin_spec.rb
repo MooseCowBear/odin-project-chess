@@ -1,4 +1,4 @@
-require_relative "../lib/pin/pin.rb"
+require_relative "../../lib/pin/pin.rb"
 
 describe Pin do
   subject(:test_pin) { described_class.new(piece: double(color: "white", position: [2, 2]), attacker: double(color: "black", position: [1, 1])) }

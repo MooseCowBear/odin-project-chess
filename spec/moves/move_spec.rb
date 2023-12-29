@@ -1,4 +1,4 @@
-require_relative "../lib/moves/move.rb" 
+require_relative "../../lib/moves/move.rb" 
 
 describe Move do
   let(:board) { double() }

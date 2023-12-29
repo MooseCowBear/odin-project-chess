@@ -1,4 +1,4 @@
-require_relative '../lib/pieces/knight.rb'
+require_relative '../../lib/pieces/knight.rb'
 
 describe Knight do
   subject(:test_knight) { described_class.new(color: "white", position: [7, 1]) }

@@ -1,4 +1,4 @@
-require_relative '../lib/players/computer_player.rb'
+require_relative '../../lib/players/computer_player.rb'
 
 describe ComputerPlayer do
   subject(:test_player) { described_class.new }

@@ -1,4 +1,4 @@
-require_relative '../lib/modules/slope.rb'
+require_relative '../../lib/modules/slope.rb'
 
 describe Slope do
   let(:dummy_class) { Class.new { extend Slope } }

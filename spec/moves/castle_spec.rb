@@ -1,4 +1,4 @@
-require_relative '../lib/moves/castle.rb'
+require_relative '../../lib/moves/castle.rb'
 
 describe Castle do
   let(:board) { double() }

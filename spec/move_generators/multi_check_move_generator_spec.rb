@@ -1,4 +1,4 @@
-require_relative "../lib/move_generators/multi_check_move_generator.rb"
+require_relative "../../lib/move_generators/multi_check_move_generator.rb"
 
 describe MultiCheckMoveGenerator do
   subject(:test_generator) { described_class.new(double(), double(), [], double()) }

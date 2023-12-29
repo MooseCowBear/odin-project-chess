@@ -1,9 +1,9 @@
-require_relative '../lib/moves/enpassant.rb'
+require_relative '../../lib/moves/enpassant.rb'
 
 describe EnPassant do
   let(:board) { double() }
   let(:test_piece) { double() }
-  subject(:test_enpassant) { described_class.new(from: [0, 0], to: [1, 1], piece: test_piece, additional_from: [2, 2]) }
+  subject(:test_enpassant) { described_class.new(from: [0, 0], to: [1, 1], piece: test_piece, additional_from: [2, 2], captures: double()) }
 
   describe "#execute" do
     it "updates the board 3 times" do

@@ -1,4 +1,4 @@
-require_relative "../lib/pieces/piece.rb"
+require_relative "../../lib/pieces/piece.rb"
 
 describe Piece do
   describe "#teammate?" do

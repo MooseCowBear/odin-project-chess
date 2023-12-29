@@ -1,4 +1,4 @@
-require_relative '../lib/pieces/pawn.rb'
+require_relative '../../lib/pieces/pawn.rb'
 
 describe Pawn do
   subject(:test_pawn) { described_class.new(color: "white", position: [6, 2]) }

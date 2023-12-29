@@ -416,7 +416,7 @@ describe Chess do
   describe ".get_game_choice" do
     it "asks for game choice until valid choice is made" do
       allow(Chess).to receive(:display_game_choices)
-      allow($stdin).to receive(:gets).and_return("8", "1")
+      allow(STDIN).to receive(:gets).and_return("8", "1")
       allow(Chess).to receive(:validate_choice).and_return(false, true)
       expect(STDOUT).to receive(:puts).with("Enter the number of the game you would like to load.").twice
       Chess.get_game_choice([double(), double()])

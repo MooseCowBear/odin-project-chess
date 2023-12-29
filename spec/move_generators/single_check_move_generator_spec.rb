@@ -1,5 +1,5 @@
-require_relative "../lib/move_generators/single_check_move_generator.rb"
-require_relative "../lib/moves/move"
+require_relative "../../lib/move_generators/single_check_move_generator.rb"
+require_relative "../../lib/moves/move"
 
 describe SingleCheckMoveGenerator do
 

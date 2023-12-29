@@ -1,4 +1,4 @@
-require_relative "../lib/modules/square_checker.rb"
+require_relative "../../lib/modules/square_checker.rb"
 
 describe SquareChecker do 
   let(:dummy_class) { Class.new { extend SquareChecker } }

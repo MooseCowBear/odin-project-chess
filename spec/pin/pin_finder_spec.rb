@@ -1,4 +1,4 @@
-require_relative "../lib/pin/pin_finder.rb"
+require_relative "../../lib/pin/pin_finder.rb"
 
 describe PinFinder do
   subject(:test_pin_finder) { described_class.new(double(), double(color: "white", position: [4, 4])) }

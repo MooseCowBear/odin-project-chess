@@ -10,7 +10,7 @@ class HumanPlayer < Player
   end
 
   def move(moves) 
-    move = gets.chomp
+    move = STDIN.gets.chomp
     move_converter.convert(move, moves)
   end
 
