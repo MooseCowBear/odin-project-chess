@@ -1,4 +1,4 @@
-require_relative "../players/Player"
+require_relative "../players/player"
 require_relative "../pieces/king"
 require_relative "../pieces/queen"
 require_relative "../pieces/bishop"
